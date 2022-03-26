@@ -1,0 +1,38 @@
+{
+  "type": "module",
+  "name": "frame1",
+  "version": "1.0.2",
+  "description": "Nodejs Frame Project",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Team-DeVent/devent-frame"
+  },
+  "author": "dipokalhhj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Team-DeVent/devent-frame/issues"
+  },
+  "homepage": "https://github.com/Team-DeVent/devent-frame#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.1",
+    "cookie-parser": "^1.4.6",
+    "dayjs": "^1.10.7",
+    "express": "^4.17.2",
+    "express-handlebars": "^6.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.3.3",
+    "sanitize-html": "^2.6.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "mocha": "^9.2.0"
+  }
+}
