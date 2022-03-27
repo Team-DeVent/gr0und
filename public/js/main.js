@@ -28,248 +28,291 @@ function keyPressed(e) {
 
 }
 
+class Player {
+    constructor () {
+        this.scene;
+        this.camera;
+        this.renderer;
+        this.stats;
+        this.loader;
+        this.model;
+        this.skeleton = {} 
+        this.mixer = {};
+        this.clock;
+        this.light;
+        this.player_animations = {};
+        this.player_model = {};
+        this.crossFadeControls = [];
+        this.container = document.getElementById( 'game' );
+
+        this.currentBaseAction = 'idle';
+        this.allActions = [];
+        this.baseActions = {
+            host: {
+                idle: { weight: 1 },
+                walk: { weight: 0 },
+                run: { weight: 0 }
+            }
+        };
+        this.additiveActions = {
+            sneak_pose: { weight: 0 },
+            sad_pose: { weight: 0 },
+            agree: { weight: 0 },
+            headShake: { weight: 0 }
+        };
+        this.panelSettings;
+        this.numAnimations;
+    }
+
+    init() {
+        this.clock = new THREE.Clock();
+
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color( 0xa0a0a0 );
+        this.scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
+
+        const hemiLight = new THREE.HemisphereLight( 0x707070, 0x444444 );
+        hemiLight.position.set( 0, 120, 0 );
+        this.scene.add( hemiLight );
+
+        const dirLight = new THREE.DirectionalLight( 0xffffff );
+        dirLight.position.set( 3, 10, 10 );
+        dirLight.castShadow = true;
+        dirLight.shadow.camera.top = 2;
+        dirLight.shadow.camera.bottom = - 2;
+        dirLight.shadow.camera.left = - 2;
+        dirLight.shadow.camera.right = 2;
+        dirLight.shadow.camera.near = 0.1;
+        dirLight.shadow.camera.far = 400;
+        this.scene.add( dirLight );
+        this.light = dirLight
+
+        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
+        mesh.rotation.x = - Math.PI / 2;
+        mesh.receiveShadow = true;
+        this.scene.add( mesh );
+
+        const geometry1 = new THREE.BoxGeometry( 1, 1, 1 );
+        const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        const cube1 = new THREE.Mesh( geometry1, material1 );
+        this.scene.add( cube1 );
+
+        this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
 
 
-function move(p_model, uid, d) { // 0: 앞으로 1: 뒤로 2: 왼쪽 3: 오른쪽
-  switch (d) {
-    case 0: // w
-      p_model.translateZ( player_distance);
-      player_moveZ[uid] = player_distance
-      player_moveX = 0
 
-      break;
+        this.loader = new THREE.GLTFLoader();
 
-    case 1: // s
+        this.loader.load.bind(this)
+
+
+        this.loader.load( '/model/Xbot.glb', ( gltf ) => {
+            console.log(this)
+            this.model = gltf.scene;
+            this.scene.add( this.model );
+            dirLight.target = this.model
+
+            this.model.add( this.camera );
+            this.camera.position.set( 0, 4, -6 );
+            this.camera.lookAt( this.model.position );
+
+            this.model.traverse( function ( object ) {
+                if ( object.isMesh ) object.castShadow = true;
+            });
+
+            this.skeleton.host = new THREE.SkeletonHelper( this.model );
+            this.skeleton.host.visible = false;
+            this.scene.add( this.skeleton.host );
+
+            const animations = gltf.animations;
+            this.player_animations.host = animations
+            
+            this.mixer.host = new THREE.AnimationMixer( this.model );
+
+
+            for ( let i = 0; i !== animations.length; ++ i ) {
+
+                let clip = animations[ i ];
+                const name = clip.name;
+
+                if ( this.baseActions['host'][ name ] ) {
+                    const action = this.mixer.host.clipAction( clip );
+                    this.activateAction( action, 'host' );
+                    this.baseActions['host'][ name ].action = action;
+                    this.allActions.push( action );
+
+                } else if ( this.additiveActions[ name ] ) {
+                    THREE.AnimationUtils.makeClipAdditive( clip );
+
+                    if ( clip.name.endsWith( '_pose' ) ) {
+                        clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
+                    }
+
+                    const action = this.mixer.host.clipAction( clip );
+                    this.activateAction( action, 'host' );
+                    this.additiveActions[ name ].action = action;
+                    this.allActions.push( action );
+                }
+            }
+
+            this.animate()
+        });
+
+
+
+        this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.shadowMap.enabled = true;
+        this.container.appendChild( this.renderer.domElement );
+        this.stat = new Stats();
+
+        window.addEventListener( 'resize', onWindowResize );
+    }
+
+
+    activateAction(action, uid) {
+        const clip = action.getClip();
+        const settings = this.baseActions[uid][ clip.name ] || this.additiveActions[ clip.name ];
+        setWeight( action, settings.weight );
+        action.play();
+    }
+
+    move(player) { // 0: 앞으로 1: 뒤로 2: 왼쪽 3: 오른쪽
+        player_moveZ[player] = player_distance
+        player_moveX = 0
+    }
     
-      p_model.translateZ( -player_distance);
-      player_moveZ = -player_distance
+    stop(player) {
+      player_moveZ[player] = 0
       player_moveX = 0
-      break;
+    }
 
-    case 2: // a
-      p_model.translateX( player_distance);
-      player_moveX = player_distance
-      player_moveZ = 0
+    rotationY(degree) {
+        this.model.rotation.y = degree;
 
+    }
 
-      break;
-
-    case 3: // d
-      p_model.translateX( -player_distance);
-      player_moveX = -player_distance
-      player_moveZ = 0
-
-      break;
-    default:
-      break;
-  }
-}
-
-function nomove(p_model, uid) {
-  p_model.translateZ( 0);
-  player_moveZ[uid] = 0
-  player_moveX = 0
-}
-
-
-function moveAction(uid) {
-  const settings = baseActions[uid][ 'walk' ];
-  const currentSettings = baseActions[uid][ 'idle' ];
-  const currentAction = currentSettings ? currentSettings.action : null;
-  const action = settings ? settings.action : null;
-  console.log("> >>", currentAction, action)
-  prepareCrossFade( currentAction, action, 0.25, uid);
-}
-
-function nomoveAction(uid) {
-  const settings = baseActions[uid][ 'idle' ];
-  const currentSettings = baseActions[uid][ 'walk' ];
-  const currentAction = currentSettings ? currentSettings.action : null;
-  const action = settings ? settings.action : null;
-  prepareCrossFade( currentAction, action, 0.25, uid);
-}
-
-
-let scene, camera, renderer, stats, loader, model, skeleton = {}, mixer = {}, clock, light;
-let player_animations = {}, player_model = {};
-
-const crossFadeControls = [];
-const container = document.getElementById( 'game' );
-
-let currentBaseAction = 'idle';
-const allActions = [];
-const baseActions = {
-  host: {
-    idle: { weight: 1 },
-    walk: { weight: 0 },
-    run: { weight: 0 }
-  }
-};
-const additiveActions = {
-  sneak_pose: { weight: 0 },
-  sad_pose: { weight: 0 },
-  agree: { weight: 0 },
-  headShake: { weight: 0 }
-};
-let panelSettings, numAnimations;
-
-init();
-
-addPlayer('bbb')
-
-
-function init() {
-          clock = new THREE.Clock();
-
-
-  scene = new THREE.Scene();
-          scene.background = new THREE.Color( 0xa0a0a0 );
-          scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
-
-          const hemiLight = new THREE.HemisphereLight( 0x707070, 0x444444 );
-          hemiLight.position.set( 0, 120, 0 );
-          scene.add( hemiLight );
-
-  const dirLight = new THREE.DirectionalLight( 0xffffff );
-  dirLight.position.set( 3, 10, 10 );
-  dirLight.castShadow = true;
-  dirLight.shadow.camera.top = 2;
-  dirLight.shadow.camera.bottom = - 2;
-  dirLight.shadow.camera.left = - 2;
-  dirLight.shadow.camera.right = 2;
-  dirLight.shadow.camera.near = 0.1;
-  dirLight.shadow.camera.far = 400;
-  scene.add( dirLight );
-  light = dirLight
-
-  const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-  mesh.rotation.x = - Math.PI / 2;
-  mesh.receiveShadow = true;
-  scene.add( mesh );
-
-
-
-  const geometry1 = new THREE.BoxGeometry( 1, 1, 1 );
-  const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-  const cube1 = new THREE.Mesh( geometry1, material1 );
-  scene.add( cube1 );
-
-
-
-
-  // camera
-  camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
-
-  /*
-  let model_dir = '/model/_ground/Xbot.glb';
-  caches.open('grond').then(function (cacheStorage) {
-    return {
-      responsedCache:cacheStorage.match(model_dir), 
-      cacheStorage:cacheStorage
-    };
-  }).then(function (data) {
-    console.log(data.responsedCache, data.cacheStorage);
-    fetch(model_dir).then(function (response) {
-      data.cacheStorage.put(model_dir, response);
-      console.log(response);
-    })
-  }).catch(function (err) {
-    console.log('res', err);
-  })
-*/
-
-
-  loader = new THREE.GLTFLoader();
-  loader.load( '/model/Xbot.glb', function ( gltf ) {
-
-    model = gltf.scene;
-    scene.add( model );
-    dirLight.target = model
-
-    model.add( camera );
-    camera.position.set( 0, 4, -6 );
-    camera.lookAt( model.position );
-    console.log(model)
-
-    model.traverse( function ( object ) {
-
-      if ( object.isMesh ) object.castShadow = true;
-
-    } );
-    console.log(gltf)
-
-    skeleton.host = new THREE.SkeletonHelper( model );
-    skeleton.host.visible = false;
-    scene.add( skeleton.host );
-
-    const animations = gltf.animations;
-    console.log(animations)
-    player_animations.host = animations
+    moveAction(uid) {
+        const settings = this.baseActions[uid][ 'walk' ];
+        const currentSettings = this.baseActions[uid][ 'idle' ];
+        const currentAction = currentSettings ? currentSettings.action : null;
+        const action = settings ? settings.action : null;
+        console.log("> >>", currentAction, action)
+        this.prepareCrossFade( currentAction, action, 0.25, uid);
+    }
     
-    mixer.host = new THREE.AnimationMixer( model );
+    stopAction(uid) {
+        const settings = this.baseActions[uid][ 'idle' ];
+        const currentSettings = this.baseActions[uid][ 'walk' ];
+        const currentAction = currentSettings ? currentSettings.action : null;
+        const action = settings ? settings.action : null;
+        this.prepareCrossFade( currentAction, action, 0.25, uid);
+    }
+    
+    prepareCrossFade( startAction, endAction, duration, player ) {
 
-    numAnimations = animations.length;
-
-    for ( let i = 0; i !== numAnimations; ++ i ) {
-
-      let clip = animations[ i ];
-      const name = clip.name;
-
-      if ( baseActions['host'][ name ] ) {
-        const action = mixer.host.clipAction( clip );
-        activateAction( action, 'host' );
-        baseActions['host'][ name ].action = action;
-        allActions.push( action );
-
-      } else if ( additiveActions[ name ] ) {
-        THREE.AnimationUtils.makeClipAdditive( clip );
-
-        if ( clip.name.endsWith( '_pose' ) ) {
-          clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
+        // 현재 동작이 '유휴'인 경우 크로스페이드(crossfade)를 즉시 실행합니다;
+        // 그렇지 않으면 현재 작업이 현재 루프를 완료할 때까지 기다립니다.
+        if ( this.currentBaseAction === 'idle' || ! startAction || ! endAction ) {
+            this.executeCrossFade( startAction, endAction, duration, player );
+        } else {
+            this.synchronizeCrossFade( startAction, endAction, duration, player );
         }
-
-        const action = mixer.host.clipAction( clip );
-        activateAction( action, 'host' );
-        additiveActions[ name ].action = action;
-        allActions.push( action );
+      
+        // Update control colors
+        if ( endAction ) {
+          const clip = endAction.getClip();
+          this.currentBaseAction = clip.name;
+        } else {
+          cthis.urrentBaseAction = 'None';
+        }
+      
+        this.crossFadeControls.forEach( function ( control ) {
+          const name = control.property;
+          if ( name === currentBaseAction ) {
+            control.setActive();
+          } else {
+            control.setInactive();
+          }
+        });
       }
+      
+
+
+
+    synchronizeCrossFade(startAction, endAction, duration, player) {
+        this.mixer.host.addEventListener( 'loop', onLoopFinished );
+    
+        let self = this
+        function onLoopFinished( event ) {
+            if ( event.action === startAction ) {
+                self.mixer.host.removeEventListener( 'loop', onLoopFinished );
+                self.executeCrossFade( startAction, endAction, duration, player );
+            }
+        }
+    }
+    
+    
+  
+     executeCrossFade(startAction, endAction, duration, player) {
+        // 시작 동작뿐만 아니라 종료 동작도 페이딩 전에 1의 가중치를 얻어야 합니다.
+        // (이 플레이스에서 이미 보장된 시작 동작과 관련하여)
+        //console.log("executeCrossFade",startAction, endAction)
+    
+        if (endAction) {
+            setWeight( endAction, 1 );
+            endAction.time = 0;
+        
+            if (startAction) {  // Crossfade with warping
+                startAction.crossFadeTo( endAction, duration, true );
+            } else {  // Fade in
+                endAction.fadeIn( duration );
+            }
+        } else {  // Fade out
+            startAction.fadeOut( duration );
+        }
     }
 
-    if (mode == 0) {
-      createPanel();
+    animate() {
+        requestAnimationFrame( this.animate.bind(this) );
+        this.model.translateZ( player_moveZ["host"]);
+        this.model.translateX( player_moveX);
+        //console.log(player_moveZ["host"])
+        /*
+        for (var i in this.player_model) {
+          //console.log(i, String(i), player_moveZ[String(i)])
+          this.player_model[i].translateZ( player_moveZ[i]);
+          //model.translateX( player_moveX);
+      
+        }
+        */
+      
+        const mixerUpdateDelta = this.clock.getDelta();
+      
+        //mixer.host.update( mixerUpdateDelta );
+        for (var i in this.mixer) {
+            this.mixer[i].update( mixerUpdateDelta );
+        }
+        if (mode == 0) {
+            this.stats.update();
+      
+        }
+        this.renderer.render( this.scene, this.camera );
     }
-
-    animate();
-  });
-
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.shadowMap.enabled = true;
-  container.appendChild( renderer.domElement );
-
-
-  /*
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.enablePan = false;
-controls.enableZoom = false;
-controls.target.set( 0, 3, 0 );
-controls.update();
-  */
-
-  stats = new Stats();
-
-  if (mode == 0) {
-    container.appendChild( stats.dom );
-  }
-
-  setTimeout(() => {
-    //loadBackgroundSound()
-  }, 1800);
-
-  window.addEventListener( 'resize', onWindowResize );
 }
+
+let p = new Player()
+
+p.init()
+
+
+
+
+
+
+
 
 
 function loadBackgroundSound() {
@@ -415,12 +458,7 @@ function createPanel() {
 
 
 
-function activateAction(action, uid) {
-  const clip = action.getClip();
-  const settings = baseActions[uid][ clip.name ] || additiveActions[ clip.name ];
-  setWeight( action, settings.weight );
-  action.play();
-}
+
 
 
 
@@ -430,68 +468,9 @@ function modifyTimeScale(speed) {
 
 
 
-function prepareCrossFade( startAction, endAction, duration, player ) {
-
-  // 현재 동작이 '유휴'인 경우 크로스페이드(crossfade)를 즉시 실행합니다;
-  // 그렇지 않으면 현재 작업이 현재 루프를 완료할 때까지 기다립니다.
-  if ( currentBaseAction === 'idle' || ! startAction || ! endAction ) {
-    executeCrossFade( startAction, endAction, duration, player );
-  } else {
-    synchronizeCrossFade( startAction, endAction, duration, player );
-  }
-
-  // Update control colors
-  if ( endAction ) {
-    const clip = endAction.getClip();
-    currentBaseAction = clip.name;
-  } else {
-    currentBaseAction = 'None';
-  }
-
-  crossFadeControls.forEach( function ( control ) {
-    const name = control.property;
-    if ( name === currentBaseAction ) {
-      control.setActive();
-    } else {
-      control.setInactive();
-    }
-  });
-}
 
 
 
-function synchronizeCrossFade(startAction, endAction, duration, player) {
-  mixer[player].addEventListener( 'loop', onLoopFinished );
-  //console.log("synchronizeCrossFade",startAction, endAction)
-
-  function onLoopFinished( event ) {
-    if ( event.action === startAction ) {
-      mixer[player].removeEventListener( 'loop', onLoopFinished );
-      executeCrossFade( startAction, endAction, duration, player );
-    }
-  }
-}
-
-
-
-function executeCrossFade(startAction, endAction, duration, player) {
-  // 시작 동작뿐만 아니라 종료 동작도 페이딩 전에 1의 가중치를 얻어야 합니다.
-  // (이 플레이스에서 이미 보장된 시작 동작과 관련하여)
-  //console.log("executeCrossFade",startAction, endAction)
-
-  if (endAction) {
-    setWeight( endAction, 1 );
-    endAction.time = 0;
-
-    if (startAction) {  // Crossfade with warping
-      startAction.crossFadeTo( endAction, duration, true );
-    } else {  // Fade in
-      endAction.fadeIn( duration );
-    }
-  } else {  // Fade out
-    startAction.fadeOut( duration );
-  }
-}
 
 
 
@@ -522,29 +501,7 @@ function onWindowResize() {
 */
 
 
-function animate() {
-  requestAnimationFrame( animate );
-  model.translateZ( player_moveZ["host"]);
-  model.translateX( player_moveX);
-  for (var i in player_model) {
-    //console.log(i, String(i), player_moveZ[String(i)])
-    player_model[i].translateZ( player_moveZ[i]);
-    //model.translateX( player_moveX);
 
-  }
-
-  const mixerUpdateDelta = clock.getDelta();
-
-  //mixer.host.update( mixerUpdateDelta );
-  for (var i in mixer) {
-    mixer[i].update( mixerUpdateDelta );
-  }
-  if (mode == 0) {
-    stats.update();
-
-  }
-  renderer.render( scene, camera );
-}
 
 
 /*
@@ -766,9 +723,9 @@ semi.on('end', function(evt, data) {
   const action = settings ? settings.action : null;
   prepareCrossFade( currentAction, action, 0.25);
   */
-  nomoveAction("host") 
+  p.stopAction("host") 
 
-  nomove(model, "host")
+  p.stop("host")
 
   try {
     conn.send({
@@ -790,7 +747,7 @@ semi.on('start end', function(evt, data) {
 }).on('move', function(evt, data) {
 
   if (move_lock == 0) {
-    model.rotation.y = data.angle.degree/57.8;
+    p.rotationY(data.angle.degree/57.8)
     if (start_count == 0) {
       console.log("> START", start_count);
       /*
@@ -800,11 +757,12 @@ semi.on('start end', function(evt, data) {
       const action = settings ? settings.action : null;
       prepareCrossFade( currentAction, action, 0.25);
       */
-      moveAction("host") 
+      p.moveAction("host") 
 
     }
     start_count += 1
-    move(model, "host", 0)
+    p.move('host')
+
 
     try {
       conn.send({

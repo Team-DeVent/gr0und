@@ -3,13 +3,47 @@
     {{> head}}
   <body>
 
-    <div class="bg-dark h-100" id="game" style="overflow: hidden;">
-      <div id="play">
+      <div class="bg-dark h-100" id="game" style="overflow: hidden;">
+        <div id="play">
+        </div>
       </div>
-    </div>
+
+      <div class="fixed-bottom text-right">
+        <button class="btn btn-light rounded mb-3 mr-3 p-3"  data-bs-toggle="modal" data-bs-target="#modal_ground_menu"><i class="fas fa-plus-circle"></i></button>
+      </div>
 
 
+      <div class="modal fade" id="modal_ground_menu" tabindex="-1" aria-labelledby="modal_ground_menu" aria-hidden="true">
+        <div class="modal-dialog " role="document">
+          <div class="modal-content modal-blur">
+  
+            <div class="modal-body">
+              <h3 class="modal-title text-light">메뉴</h3>
+              <br>
+              <input class="mode_check" type="checkbox" checked  /> 다크모드
 
+              <p>PEER: <b id="menu_peer"></b>
+              </p>
+              <p>UID: <b id="menu_uid"></b>
+              </p>
+
+              <span id="loadPer">0</span>
+
+
+              <label for="modal_feed_info_body_url">공유 URL</label>
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text input-modalcontent" id="basic-addon3" onclick="shareClipboard('')"><i class="fas fa-clipboard-list"></i></span>
+                </div>
+                <input type="text" class="form-control input-modalcontent" id="modal_feed_info_body_url" aria-describedby="basic-addon3">
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    
     {{> footer}}
 
 

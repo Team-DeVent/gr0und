@@ -6,4 +6,4 @@
 ## To-Do
 
 * [x] 스무더 그라운드 분할
-* [ ] class 화
+* [x] Player class 화
