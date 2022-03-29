@@ -168,7 +168,7 @@ class Player {
         this.container.appendChild( this.renderer.domElement );
         this.stat = new Stats();
 
-        window.addEventListener( 'resize', onWindowResize );
+        window.addEventListener( 'resize', this.onWindowResize );
     }
 
 
@@ -273,6 +273,13 @@ class Player {
         } else {  // Fade out
             startAction.fadeOut( duration );
         }
+    }
+
+    onWindowResize() {
+        this.onWindowResize.bind(this) 
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
 
     animate() {
@@ -486,11 +493,6 @@ function setWeight(action, weight) {
 
 
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize( window.innerWidth, window.innerHeight );
-}
 
 
 
@@ -714,18 +716,15 @@ let start_count = 0, move_lock = 0;
 // NOTE: 더 부드러운 인터렉션을 위해 빠른 종료 애니메이션 필요
 semi.on('end', function(evt, data) {
   console.log("> STOP", start_count);
-  move_lock = 1 // 이동 제한
-  start_count = 0
-  /*
-  const settings = baseActions[ 'idle' ];
-  const currentSettings = baseActions[ 'walk' ];
-  const currentAction = currentSettings ? currentSettings.action : null;
-  const action = settings ? settings.action : null;
-  prepareCrossFade( currentAction, action, 0.25);
-  */
-  p.stopAction("host") 
 
-  p.stop("host")
+  if (start_count !== 0) {
+    move_lock = 1 // 이동 제한
+    start_count = 0
+    p.stopAction("host") 
+
+    p.stop("host")
+  }
+
 
   try {
     conn.send({
@@ -747,16 +746,11 @@ semi.on('start end', function(evt, data) {
 }).on('move', function(evt, data) {
 
   if (move_lock == 0) {
-    p.rotationY(data.angle.degree/57.8)
+    p.rotationY(data.angle.radian)
+
     if (start_count == 0) {
       console.log("> START", start_count);
-      /*
-      const settings = baseActions[ 'walk' ];
-      const currentSettings = baseActions[ 'idle' ];
-      const currentAction = currentSettings ? currentSettings.action : null;
-      const action = settings ? settings.action : null;
-      prepareCrossFade( currentAction, action, 0.25);
-      */
+
       p.moveAction("host") 
 
     }

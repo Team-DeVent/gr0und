@@ -31,3 +31,7 @@ body.swal2-height-auto {
 .swal2-container.swal2-center>.swal2-popup {
     border-radius: 10px;
 }
+
+#info_button:hover > i{
+    color: #407dee;
+}

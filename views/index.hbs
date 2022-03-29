@@ -9,9 +9,17 @@
       </div>
 
       <div class="fixed-bottom text-right">
-        <button class="btn btn-light rounded mb-3 mr-3 p-3"  data-bs-toggle="modal" data-bs-target="#modal_ground_menu"><i class="fas fa-plus-circle"></i></button>
+        <button class="btn rounded mb-3 mr-3 p-3" id="info_button" data-bs-toggle="modal" data-bs-target="#info"><i class="fas fa-question-circle"></i></button>
       </div>
 
+
+      <dds-modal
+          modal-id="info"
+          modal-title="Gr0und 소개"
+          modal-subtitle="그라운드는 스무더 프로젝트에서 파생된 메타버스 플랫폼 입니다. ThreeJS 기반으로 개발되고 있습니다.">
+              <dds-modal-button button-color="btn-blue" button-text-color="text-primary" is-dismiss="false" onclick="window.open('https://smoother.kr')">스무더</dds-modal-button>
+              <dds-modal-button button-color="btn-light" button-text-color="text-dark" is-dismiss="true">취소</dds-modal-button>
+      </dds-modal>
 
       <div class="modal fade" id="modal_ground_menu" tabindex="-1" aria-labelledby="modal_ground_menu" aria-hidden="true">
         <div class="modal-dialog " role="document">
