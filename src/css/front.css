@@ -35,3 +35,19 @@ body.swal2-height-auto {
 #info_button:hover > i{
     color: #407dee;
 }
+
+.div-hide {
+    display: none;
+}
+
+.blur {
+    background-color: #ffffffd5;
+    -webkit-backdrop-filter: saturate(120%) blur(16px);
+    backdrop-filter: saturate(120%) blur(16px);
+}
+
+.overflow-scroll {
+    overflow-y: scroll;
+    overflow-x: scroll;
+
+}

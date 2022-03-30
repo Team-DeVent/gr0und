@@ -5,6 +5,8 @@ let mode = 1; // 0: dev 1: prud
 
 let player_clip, player_action, player_key;
 let player_distance = 0.02; // 속도
+let player_camara_zoom = 90; // 속도
+
 let player_moveZ = {
   "host":0
 }, player_moveX = 0; // 속도
@@ -16,13 +18,36 @@ let now_user_id = {
 
 document.addEventListener("keydown", keyPressed, false);
 
+function switchConsole() {
+  let body = document.querySelector("#console")
+
+  if (body.classList.contains('div-hide')) {
+    body.classList.remove('div-hide')
+  } else {
+    body.classList.add('div-hide')
+  }
+}
+
+function addConsoleMessage(msg) {
+  let body = document.querySelector("#console")
+  body.insertAdjacentHTML('beforeend', `[ + ] ${msg} <br>`)
+}
+
 function keyPressed(e) {
   console.log(e.keyCode)
   if (e.keyCode == 73) { // i
-    console.log(skeleton)
-    console.log(mixer)
-    console.log(player_model)
-    console.log(baseActions)
+    switchConsole()
+
+  }
+  if (e.keyCode == 48) { // 0 (zoom camara +)
+    player_camara_zoom += 5
+    p.zoomCamera(player_camara_zoom)
+    addConsoleMessage(`zoom ${player_camara_zoom}`)
+
+  } else if (e.keyCode == 57) { // 9 (zoom camara -)
+    player_camara_zoom -= 5
+    p.zoomCamera(player_camara_zoom)
+    addConsoleMessage(`zoom ${player_camara_zoom}`)
 
   }
 
@@ -65,6 +90,8 @@ class Player {
     }
 
     init() {
+      addConsoleMessage(`init`)
+
         this.clock = new THREE.Clock();
 
         this.scene = new THREE.Scene();
@@ -100,11 +127,11 @@ class Player {
         this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
 
 
-
         this.loader = new THREE.GLTFLoader();
 
         this.loader.load.bind(this)
 
+        addConsoleMessage(`load model`)
 
         this.loader.load( '/model/Xbot.glb', ( gltf ) => {
             console.log(this)
@@ -210,6 +237,18 @@ class Player {
         const action = settings ? settings.action : null;
         this.prepareCrossFade( currentAction, action, 0.25, uid);
     }
+
+    addCube(x,y,z) {
+      const geometry1 = new THREE.BoxGeometry( x, y, z );
+      const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+      const cube1 = new THREE.Mesh( geometry1, material1 );
+      this.scene.add( cube1 );
+    }
+
+    zoomCamera(fov) {
+      this.camera.fov = fov
+      this.camera.updateProjectionMatrix();
+    }
     
     prepareCrossFade( startAction, endAction, duration, player ) {
 
@@ -313,10 +352,10 @@ class Player {
 let p = new Player()
 
 p.init()
+//p.addCube(1,3,5)
 
 
-
-
+p.zoomCamera(90)
 
 
 
@@ -709,13 +748,14 @@ zone: document.getElementById('game'),
 });
 
 let start_count = 0, move_lock = 0;
-
+let last_radian_temp = 0;
+let last_radian = 0;
 
 
 
 // NOTE: 더 부드러운 인터렉션을 위해 빠른 종료 애니메이션 필요
 semi.on('end', function(evt, data) {
-  console.log("> STOP", start_count);
+  console.log("> STOP", start_count, last_radian);
 
   if (start_count !== 0) {
     move_lock = 1 // 이동 제한
@@ -723,6 +763,8 @@ semi.on('end', function(evt, data) {
     p.stopAction("host") 
 
     p.stop("host")
+    last_radian = last_radian_temp
+
   }
 
 
@@ -749,7 +791,7 @@ semi.on('start end', function(evt, data) {
     p.rotationY(data.angle.radian)
 
     if (start_count == 0) {
-      console.log("> START", start_count);
+      console.log("> START", start_count, last_radian);
 
       p.moveAction("host") 
 
