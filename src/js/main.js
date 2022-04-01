@@ -18,6 +18,19 @@ let now_user_id = {
 
 document.addEventListener("keydown", keyPressed, false);
 
+button_zoom_p.addEventListener("click", () => {
+  player_camara_zoom += 5
+  p.zoomCamera(player_camara_zoom)
+  document.querySelector("#zoom_input").value = "시야 확대 "+player_camara_zoom
+});
+
+button_zoom_m.addEventListener("click", () => {
+  player_camara_zoom -= 5
+  p.zoomCamera(player_camara_zoom)
+  document.querySelector("#zoom_input").value = "시야 확대 "+player_camara_zoom
+});
+
+
 function switchConsole() {
   let body = document.querySelector("#console")
 
@@ -195,7 +208,11 @@ class Player {
         this.container.appendChild( this.renderer.domElement );
         this.stat = new Stats();
 
-        window.addEventListener( 'resize', this.onWindowResize );
+        window.addEventListener.bind(this)
+
+        window.addEventListener( 'resize', () => {
+          this.onWindowResize()
+        });
     }
 
 
@@ -315,7 +332,7 @@ class Player {
     }
 
     onWindowResize() {
-        this.onWindowResize.bind(this) 
+        //this.onWindowResize.bind(this) 
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
