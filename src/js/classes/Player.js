@@ -1,23 +1,12 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
+import { Ground } from "/js/classes/Ground.js"
 
 class Player {
     constructor () {
-        this.scene;
-        this.camera;
-        this.renderer;
-        this.stats;
-        this.loader;
-        this.model;
-        this.skeleton = {} 
-        this.mixer = {};
-        this.clock;
-        this.light;
-        this.player_animations = {};
-        this.player_model = {};
-        this.crossFadeControls = [];
-        this.container = document.getElementById( 'game' );
+        this.ground = new Ground()
 
+        this.crossFadeControls = [];
         this.currentBaseAction = 'idle';
         this.allActions = [];
         this.baseActions = {
@@ -45,69 +34,36 @@ class Player {
     }
 
     init() {
-
-        this.clock = new THREE.Clock();
-
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color( 0xa0a0a0 );
-        this.scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
-
-        const hemiLight = new THREE.HemisphereLight( 0x707070, 0x444444 );
-        hemiLight.position.set( 0, 120, 0 );
-        this.scene.add( hemiLight );
-
-        const dirLight = new THREE.DirectionalLight( 0xffffff );
-        dirLight.position.set( 3, 10, 10 );
-        dirLight.castShadow = true;
-        dirLight.shadow.camera.top = 2;
-        dirLight.shadow.camera.bottom = - 2;
-        dirLight.shadow.camera.left = - 2;
-        dirLight.shadow.camera.right = 2;
-        dirLight.shadow.camera.near = 0.1;
-        dirLight.shadow.camera.far = 400;
-        this.scene.add( dirLight );
-        this.light = dirLight
-
-        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-        mesh.rotation.x = - Math.PI / 2;
-        mesh.receiveShadow = true;
-        this.scene.add( mesh );
-
-        const geometry1 = new THREE.BoxGeometry( 1, 1, 1 );
-        const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-        const cube1 = new THREE.Mesh( geometry1, material1 );
-        this.scene.add( cube1 );
-
-        this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
+        this.ground.init()
 
 
-        this.loader = new THREE.GLTFLoader();
+        this.ground.loader = new THREE.GLTFLoader();
 
-        this.loader.load.bind(this)
+        this.ground.loader.load.bind(this)
 
 
-        this.loader.load( '/model/Xbot.glb', ( gltf ) => {
+        this.ground.loader.load( '/model/Xbot.glb', ( gltf ) => {
             console.log(this)
-            this.model = gltf.scene;
-            this.scene.add( this.model );
-            dirLight.target = this.model
+            this.ground.model = gltf.scene;
+            this.ground.scene.add( this.ground.model );
+            this.ground.light.target = this.ground.model
 
-            this.model.add( this.camera );
-            this.camera.position.set( 0, 4, -6 );
-            this.camera.lookAt( this.model.position );
+            this.ground.model.add( this.ground.camera );
+            this.ground.camera.position.set( 0, 4, -6 );
+            this.ground.camera.lookAt( this.ground.model.position );
 
-            this.model.traverse( function ( object ) {
+            this.ground.model.traverse( function ( object ) {
                 if ( object.isMesh ) object.castShadow = true;
             });
 
-            this.skeleton.host = new THREE.SkeletonHelper( this.model );
-            this.skeleton.host.visible = false;
-            this.scene.add( this.skeleton.host );
+            this.ground.skeleton.host = new THREE.SkeletonHelper( this.ground.model );
+            this.ground.skeleton.host.visible = false;
+            this.ground.scene.add( this.ground.skeleton.host );
 
             const animations = gltf.animations;
-            this.player_animations.host = animations
+            this.ground.player_animations.host = animations
             
-            this.mixer.host = new THREE.AnimationMixer( this.model );
+            this.ground.mixer.host = new THREE.AnimationMixer( this.ground.model );
 
 
             for ( let i = 0; i !== animations.length; ++ i ) {
@@ -116,7 +72,7 @@ class Player {
                 const name = clip.name;
 
                 if ( this.baseActions['host'][ name ] ) {
-                    const action = this.mixer.host.clipAction( clip );
+                    const action = this.ground.mixer.host.clipAction( clip );
                     this.activateAction( action, 'host' );
                     this.baseActions['host'][ name ].action = action;
                     this.allActions.push( action );
@@ -128,7 +84,7 @@ class Player {
                         clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
                     }
 
-                    const action = this.mixer.host.clipAction( clip );
+                    const action = this.ground.mixer.host.clipAction( clip );
                     this.activateAction( action, 'host' );
                     this.additiveActions[ name ].action = action;
                     this.allActions.push( action );
@@ -140,27 +96,19 @@ class Player {
 
 
 
-        this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-        this.renderer.setPixelRatio( window.devicePixelRatio );
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.renderer.outputEncoding = THREE.sRGBEncoding;
-        this.renderer.shadowMap.enabled = true;
-        this.container.appendChild( this.renderer.domElement );
-        this.stat = new Stats();
+        this.ground.renderer = new THREE.WebGLRenderer( { antialias: true } );
+        this.ground.renderer.setPixelRatio( window.devicePixelRatio );
+        this.ground.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.ground.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.ground.renderer.shadowMap.enabled = true;
+        this.ground.container.appendChild( this.ground.renderer.domElement );
+        this.ground.stat = new Stats();
 
         window.addEventListener.bind(this)
 
         window.addEventListener( 'resize', () => {
           this.onWindowResize()
         });
-    }
-
-
-    activateAction(action, uid) {
-        const clip = action.getClip();
-        const settings = this.baseActions[uid][ clip.name ] || this.additiveActions[ clip.name ];
-        this.setWeight( action, settings.weight );
-        action.play();
     }
 
 
@@ -181,8 +129,15 @@ class Player {
     }
 
     rotationY(degree) {
-        this.model.rotation.y = degree;
+        this.ground.model.rotation.y = degree;
 
+    }
+
+    activateAction(action, uid) {
+        const clip = action.getClip();
+        const settings = this.baseActions[uid][ clip.name ] || this.additiveActions[ clip.name ];
+        this.setWeight( action, settings.weight );
+        action.play();
     }
 
     moveAction(uid) {
@@ -202,16 +157,10 @@ class Player {
         this.prepareCrossFade( currentAction, action, 0.25, uid);
     }
 
-    addCube(x,y,z) {
-      const geometry1 = new THREE.BoxGeometry( x, y, z );
-      const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-      const cube1 = new THREE.Mesh( geometry1, material1 );
-      this.scene.add( cube1 );
-    }
 
     zoomCamera(fov) {
-      this.camera.fov = fov
-      this.camera.updateProjectionMatrix();
+      this.ground.camera.fov = fov
+      this.ground.camera.updateProjectionMatrix();
     }
     
     prepareCrossFade( startAction, endAction, duration, player ) {
@@ -229,7 +178,7 @@ class Player {
           const clip = endAction.getClip();
           this.currentBaseAction = clip.name;
         } else {
-          cthis.urrentBaseAction = 'None';
+          this.currentBaseAction = 'None';
         }
       
         this.crossFadeControls.forEach( function ( control ) {
@@ -246,12 +195,12 @@ class Player {
 
 
     synchronizeCrossFade(startAction, endAction, duration, player) {
-        this.mixer.host.addEventListener( 'loop', onLoopFinished );
+        this.ground.mixer.host.addEventListener( 'loop', onLoopFinished );
     
         let self = this
         function onLoopFinished( event ) {
             if ( event.action === startAction ) {
-                self.mixer.host.removeEventListener( 'loop', onLoopFinished );
+                self.ground.mixer.host.removeEventListener( 'loop', onLoopFinished );
                 self.executeCrossFade( startAction, endAction, duration, player );
             }
         }
@@ -287,8 +236,8 @@ class Player {
 
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
-        this.model.translateZ( this.player_moveZ["host"]);
-        this.model.translateX( this.player_moveX);
+        this.ground.model.translateZ( this.player_moveZ["host"]);
+        this.ground.model.translateX( this.player_moveX);
         //console.log(player_moveZ["host"])
         /*
         for (var i in this.player_model) {
@@ -299,14 +248,14 @@ class Player {
         }
         */
       
-        const mixerUpdateDelta = this.clock.getDelta();
+        const mixerUpdateDelta = this.ground.clock.getDelta();
       
         //mixer.host.update( mixerUpdateDelta );
-        for (var i in this.mixer) {
-            this.mixer[i].update( mixerUpdateDelta );
+        for (var i in this.ground.mixer) {
+            this.ground.mixer[i].update( mixerUpdateDelta );
         }
 
-        this.renderer.render( this.scene, this.camera );
+        this.ground.renderer.render( this.ground.scene, this.ground.camera );
     }
 }
 
