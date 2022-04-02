@@ -1,3 +1,5 @@
+
+
 class Ground {
     constructor () {
         this.scene;
@@ -13,6 +15,8 @@ class Ground {
         this.player_animations = {};
         this.player_model = {};
         this.container = document.getElementById( 'game' );
+
+        this.object
 
     }
 
@@ -44,10 +48,7 @@ class Ground {
         mesh.receiveShadow = true;
         this.scene.add( mesh );
 
-        const geometry1 = new THREE.BoxGeometry( 1, 1, 1 );
-        const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-        const cube1 = new THREE.Mesh( geometry1, material1 );
-        this.scene.add( cube1 );
+
 
         this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
     }
@@ -57,6 +58,7 @@ class Ground {
         const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
         const cube1 = new THREE.Mesh( geometry1, material1 );
         this.scene.add( cube1 );
+        this.object = cube1
     }
   
 }

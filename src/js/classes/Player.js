@@ -1,10 +1,12 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
 import { Ground } from "/js/classes/Ground.js"
+import { Object } from "/js/classes/Object.js"
 
 class Player {
     constructor () {
         this.ground = new Ground()
+        this.object = new Object()
 
         this.crossFadeControls = [];
         this.currentBaseAction = 'idle';
@@ -35,6 +37,9 @@ class Player {
 
     init() {
         this.ground.init()
+        this.object.init()
+
+        this.ground.addCube(1,1,1)
 
 
         this.ground.loader = new THREE.GLTFLoader();
@@ -175,21 +180,21 @@ class Player {
       
         // Update control colors
         if ( endAction ) {
-          const clip = endAction.getClip();
-          this.currentBaseAction = clip.name;
+            const clip = endAction.getClip();
+            this.currentBaseAction = clip.name;
         } else {
-          this.currentBaseAction = 'None';
+            this.currentBaseAction = 'None';
         }
       
         this.crossFadeControls.forEach( function ( control ) {
-          const name = control.property;
-          if ( name === currentBaseAction ) {
-            control.setActive();
-          } else {
-            control.setInactive();
-          }
+            const name = control.property;
+            if ( name === currentBaseAction ) {
+                control.setActive();
+            } else {
+                control.setInactive();
+            }
         });
-      }
+    }
       
 
 
@@ -208,7 +213,7 @@ class Player {
     
     
   
-     executeCrossFade(startAction, endAction, duration, player) {
+    executeCrossFade(startAction, endAction, duration, player) {
         // 시작 동작뿐만 아니라 종료 동작도 페이딩 전에 1의 가중치를 얻어야 합니다.
         // (이 플레이스에서 이미 보장된 시작 동작과 관련하여)
         //console.log("executeCrossFade",startAction, endAction)
@@ -229,9 +234,9 @@ class Player {
 
     onWindowResize() {
         //this.onWindowResize.bind(this) 
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.ground.camera.aspect = window.innerWidth / window.innerHeight;
+        this.ground.camera.updateProjectionMatrix();
+        this.ground.renderer.setSize( window.innerWidth, window.innerHeight );
     }
 
     animate() {
@@ -251,6 +256,11 @@ class Player {
         const mixerUpdateDelta = this.ground.clock.getDelta();
       
         //mixer.host.update( mixerUpdateDelta );
+
+        this.object.world.step(1 / 60, mixerUpdateDelta, 3)
+        this.ground.object.position.copy(this.object.body.position)
+
+
         for (var i in this.ground.mixer) {
             this.ground.mixer[i].update( mixerUpdateDelta );
         }
