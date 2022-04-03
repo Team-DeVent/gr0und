@@ -7,7 +7,7 @@ class Ground {
         this.renderer;
         this.stats;
         this.loader;
-        this.model;
+        this.model = {};
         this.skeleton = {} 
         this.mixer = {};
         this.clock;

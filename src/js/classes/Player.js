@@ -27,8 +27,9 @@ class Player {
         this.panelSettings;
         this.numAnimations;
 
-        this.player_moveZ = {
-            "host":0
+        // x,y,z
+        this.playerMove = {
+            "host":[0,0,0]
         };
         this.player_moveX = 0; 
         this.player_distance = 0.02; // 속도
@@ -49,26 +50,26 @@ class Player {
 
         this.ground.loader.load( '/model/Xbot.glb', ( gltf ) => {
             console.log(this)
-            this.ground.model = gltf.scene;
-            this.ground.scene.add( this.ground.model );
-            this.ground.light.target = this.ground.model
+            this.ground.model.host = gltf.scene;
+            this.ground.scene.add( this.ground.model.host );
+            this.ground.light.target = this.ground.model.host
 
-            this.ground.model.add( this.ground.camera );
+            this.ground.model.host.add( this.ground.camera );
             this.ground.camera.position.set( 0, 4, -6 );
-            this.ground.camera.lookAt( this.ground.model.position );
+            this.ground.camera.lookAt( this.ground.model.host.position );
 
-            this.ground.model.traverse( function ( object ) {
+            this.ground.model.host.traverse( function ( object ) {
                 if ( object.isMesh ) object.castShadow = true;
             });
 
-            this.ground.skeleton.host = new THREE.SkeletonHelper( this.ground.model );
+            this.ground.skeleton.host = new THREE.SkeletonHelper( this.ground.model.host );
             this.ground.skeleton.host.visible = false;
             this.ground.scene.add( this.ground.skeleton.host );
 
             const animations = gltf.animations;
             this.ground.player_animations.host = animations
             
-            this.ground.mixer.host = new THREE.AnimationMixer( this.ground.model );
+            this.ground.mixer.host = new THREE.AnimationMixer( this.ground.model.host );
 
 
             for ( let i = 0; i !== animations.length; ++ i ) {
@@ -116,6 +117,69 @@ class Player {
         });
     }
 
+    add(player) {
+        this.ground.loader.load.bind(this)
+        console.log(this, player, this.playerMove)
+
+
+        this.ground.loader.load( '/model/Xbot.glb',  ( gltf ) => {
+            
+            this.ground.model[player] = gltf.scene;
+            this.playerMove[player] = [0,0,0]
+            
+            this.ground.scene.add( this.ground.model[player] );
+            console.log(this.ground.model[player])
+      
+      
+            this.ground.model[player].traverse( function ( object ) {
+                if (object.isMesh) object.castShadow = true;
+            });
+            console.log(gltf)
+      
+          this.ground.skeleton[player] = new THREE.SkeletonHelper( this.ground.model[player] );
+          this.ground.skeleton[player].visible = false;
+          this.ground.scene.add( this.ground.skeleton[player] );
+      
+          const animations = gltf.animations;
+          console.log(animations)
+          this.ground.player_animations[player] = animations
+      
+          this.ground.mixer[player] = new THREE.AnimationMixer( this.ground.model[player] );
+          this.addBaseActions(player)
+      
+          
+      
+          for ( let i = 0; i !== animations.length; ++ i ) {
+      
+            let clip = animations[ i ];
+            const name = clip.name;
+      
+            if ( this.baseActions[player][ name ] ) {
+              const action = this.ground.mixer[player].clipAction( clip );
+              this.activateAction( action, player );
+              this.baseActions[player][ name ].action = action;
+      
+            } else if ( this.additiveActions[ name ] ) {
+              THREE.AnimationUtils.makeClipAdditive( clip );
+      
+              if ( clip.name.endsWith( '_pose' ) ) {
+                clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
+              }
+      
+              const action =this.ground.mixer[player].clipAction( clip );
+              this.activateAction( action, player );
+            }
+          }
+        });
+    }
+
+    addBaseActions(player) {
+        this.baseActions[player] = {
+          idle: { weight: 1 },
+          walk: { weight: 0 },
+          run: { weight: 0 }
+        }
+    }
 
     setWeight(action, weight) {
         action.enabled = true;
@@ -124,17 +188,17 @@ class Player {
     }
 
     move(player) { // 0: 앞으로 1: 뒤로 2: 왼쪽 3: 오른쪽
-        this.player_moveZ[player] = this.player_distance
+        this.playerMove[player][2] = this.player_distance
         this.player_moveX = 0
     }
     
     stop(player) {
-        this.player_moveZ[player] = 0
+        this.playerMove[player][2] = 0
         this.player_moveX = 0
     }
 
     rotationY(degree) {
-        this.ground.model.rotation.y = degree;
+        this.ground.model.host.rotation.y = degree;
 
     }
 
@@ -241,8 +305,8 @@ class Player {
 
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
-        this.ground.model.translateZ( this.player_moveZ["host"]);
-        this.ground.model.translateX( this.player_moveX);
+        this.ground.model.host.translateZ( this.playerMove["host"][2]);
+        this.ground.model.host.translateX( this.player_moveX);
         //console.log(player_moveZ["host"])
         /*
         for (var i in this.player_model) {

@@ -75,6 +75,8 @@ p.init()
 
 p.zoomCamera(90)
 
+p.add('o2')
+
 
 
 
@@ -100,68 +102,10 @@ function loadBackgroundSound() {
 
 
 
-function addPlayer(uid) {
-  //loader = new THREE.GLTFLoader();
-  loader.load( '/model/Xbot.glb', function ( gltf ) {
-
-    player_model[uid] = gltf.scene;
-    player_moveZ[uid] = 0
-    scene.add( player_model[uid] );
-    console.log(player_model)
-    //light.target = player_model.uid
 
 
-    player_model[uid].traverse( function ( object ) {
-      if (object.isMesh) object.castShadow = true;
-    });
-    console.log(gltf)
-
-    skeleton[uid] = new THREE.SkeletonHelper( player_model[uid] );
-    skeleton[uid].visible = false;
-    scene.add( skeleton[uid] );
-
-    const animations = gltf.animations;
-    console.log(animations)
-    player_animations[uid] = animations
-
-    mixer[uid] = new THREE.AnimationMixer( player_model[uid] );
-    addBaseActions(uid)
-
-    
-    numAnimations = animations.length;
-
-    for ( let i = 0; i !== numAnimations; ++ i ) {
-
-      let clip = animations[ i ];
-      const name = clip.name;
-
-      if ( baseActions[uid][ name ] ) {
-        const action = mixer[uid].clipAction( clip );
-        activateAction( action, uid );
-        baseActions[uid][ name ].action = action;
-
-      } else if ( additiveActions[ name ] ) {
-        THREE.AnimationUtils.makeClipAdditive( clip );
-
-        if ( clip.name.endsWith( '_pose' ) ) {
-          clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
-        }
-
-        const action = mixer[uid].clipAction( clip );
-        activateAction( action, uid );
-      }
-    }
-  });
-}
 
 
-function addBaseActions(uid) {
-  baseActions[uid] = {
-    idle: { weight: 1 },
-    walk: { weight: 0 },
-    run: { weight: 0 }
-  }
-}
 
 
 
