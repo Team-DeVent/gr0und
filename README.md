@@ -7,3 +7,4 @@
 
 * [x] 스무더 그라운드 분할
 * [x] Player class 화
+* [x] socket io realtime

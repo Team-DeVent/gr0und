@@ -197,8 +197,8 @@ class Player {
         this.player_moveX = 0
     }
 
-    rotationY(degree) {
-        this.ground.model.host.rotation.y = degree;
+    rotationY(player, degree) {
+        this.ground.model[player].rotation.y = degree;
 
     }
 
@@ -264,12 +264,12 @@ class Player {
 
 
     synchronizeCrossFade(startAction, endAction, duration, player) {
-        this.ground.mixer.host.addEventListener( 'loop', onLoopFinished );
+        this.ground.mixer[player].addEventListener( 'loop', onLoopFinished );
     
         let self = this
         function onLoopFinished( event ) {
             if ( event.action === startAction ) {
-                self.ground.mixer.host.removeEventListener( 'loop', onLoopFinished );
+                self.ground.mixer[player].removeEventListener( 'loop', onLoopFinished );
                 self.executeCrossFade( startAction, endAction, duration, player );
             }
         }
@@ -308,14 +308,14 @@ class Player {
         this.ground.model.host.translateZ( this.playerMove["host"][2]);
         this.ground.model.host.translateX( this.player_moveX);
         //console.log(player_moveZ["host"])
-        /*
-        for (var i in this.player_model) {
+        
+        for (var i in this.ground.model) {
           //console.log(i, String(i), player_moveZ[String(i)])
-          this.player_model[i].translateZ( player_moveZ[i]);
+          this.ground.model[i].translateZ( this.playerMove[i][2]);
           //model.translateX( player_moveX);
       
         }
-        */
+        
       
         const mixerUpdateDelta = this.ground.clock.getDelta();
       

@@ -1,6 +1,7 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
 import { Player } from "/js/classes/Player.js";
+import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
 let mode = 1; // 0: dev 1: prud
 
@@ -13,7 +14,8 @@ let player_moveZ = {
 }, player_moveX = 0; // 속도
 
 let now_user_id = {
-    u_id: 'test'
+    u_id: 'test',
+    uuid: uuidv4()
 }
 
 
@@ -64,6 +66,10 @@ function keyPressed(e) {
     addConsoleMessage(`zoom ${player_camara_zoom}`)
 
   }
+  if (e.keyCode == 85) { // u
+    console.log(p.ground)
+
+  }
 
 }
 
@@ -74,8 +80,6 @@ let p = new Player()
 p.init()
 
 p.zoomCamera(90)
-
-p.add('o2')
 
 
 
@@ -263,134 +267,11 @@ function broadcastData(data) {
 
 let player_move_lock = {}
 
-peer.on('open', function(id) {
-
-  if (window.location.href.split('#')[1] == undefined) { // 호스트
-    console.log("HOST")
-    console.log(peer_rand_id)
-    document.querySelector("#menu_peer").innerHTML = peer_rand_id
-    document.querySelector("#modal_feed_info_body_url").value = window.location.href +"#"+ peer_rand_id
-    
-
-    document.querySelector("#menu_uid").innerHTML = local_uid
-  } else {
-    page_peer =  window.location.href.split('#')[1]
-    conn = peer.connect(page_peer);
-    console.log(">", peer)
-    document.querySelector("#menu_uid").innerHTML = local_uid
-
-    conn.on('open', function(){
-      conn.send({
-        status:100,
-        user_id:local_uid,
-        user_peer:peer.id
-      });
-    });
-
-    conn.on('data', function(data){
-      switch (data.status) {
-        case 100:
-          player_move_lock[data.user_id] = 0
-
-          addPlayer(data.uid)
-
-          console.log(data)
-          setTimeout(() => {
-            player_model[data.user_id].position.set(data.location.x, data.location.y, data.location.z);
-          }, 1000);
-
-
-          break;
-
-        case 600: // 게스트 움직임
-          if (data.uid != local_uid) {
-            player_model[data.uid].rotation.y = data.rotation
-            move(player_model[data.uid], data.uid, 0)
-            if (player_move_lock[data.user_id] == 0) { // 움직임 허용
-              moveAction(data.uid)
-              player_move_lock[data.user_id] = 1
-            }
-            // broadcastData(data)
-          }
-
-
-          break;
-      
-        case 601: // 게스트 멈춤
-          if (data.uid != local_uid) {
-            nomoveAction(data.uid)
-            console.log(">", data.uid)
-            player_move_lock[data.user_id] = 0 // 움직임 제한 해제
-            //player_model[data.uid].rotation.y = 0
-            nomove(player_model[data.uid], data.uid)
-          }
-
-
-          break;
-        default:
-          break;
-      }
-    });
-  }
-});
 
 
 
-peer.on('connection', function(nconn) {
-  if (window.location.href.split('#')[1] == undefined) { // 호스트일 경우
-    conn = nconn
-    nconn.on('data', function(data){
-      console.log(data);
-      switch (data.status) {
-        case 100: // 초기 접속
-          console.log("NEW USER")
-          player_move_lock[data.user_id] = 0
-          addPlayer(data.user_id)
-          addPlayerPeer(data.user_peer)
-          broadcastData({
-            status:100,
-            uid:local_uid,
-            location:model.position
-          })
-
-          break;
-
-        case 600: // 호스트 움직임
-          if (data.uid != local_uid) {
-            player_model[data.uid].rotation.y = data.rotation
-            move(player_model[data.uid], data.uid, 0)
-            if (player_move_lock[data.user_id] == 0) { // 움직임 허용
-              moveAction(data.uid)
-              player_move_lock[data.user_id] = 1
-            }
-            console.log("<", data.uid, player_model[data.uid])
-            broadcastData(data)
-          }
 
 
-          break;
-      
-        case 601: // 호스트 멈춤
-          if (data.uid != local_uid) {
-            //player_model[data.uid].rotation.y = 0
-            nomoveAction(data.uid)
-            console.log(">", data.uid)
-            player_move_lock[data.user_id] = 0 // 움직임 제한 해제
-            nomove(player_model[data.uid], data.uid)
-          }
-
-
-          break;
-        default:
-          break;
-      }
-    });
-  }
-
-});
-
-
-  
 /*
 ========================================================
               *  플레이어 조이스틱 제어  *
@@ -407,6 +288,59 @@ zone: document.getElementById('game'),
 let start_count = 0, move_lock = 0;
 let last_radian_temp = 0;
 let last_radian = 0;
+
+const socket = io();
+
+socket.emit('init', {
+  uuid: now_user_id.uuid
+})
+
+socket.on('init', (data) => {
+  if (now_user_id.uuid != data.uuid) {
+    p.add(data.uuid)
+    console.log(data.uuid)
+    player_move_lock[data.uuid] = 0
+  }
+
+})
+
+socket.on('move', (data) => {
+  if (now_user_id.uuid != data.uuid) {
+    if (player_move_lock[data.uuid] == 0) {
+      p.moveAction(data.uuid) 
+      p.move(data.uuid)
+      console.log('>>>>>>>>>>>>>', data)
+      player_move_lock[data.uuid] = 1
+
+    } else {
+      p.move(data.uuid)
+      console.log(player_move_lock[data.uuid], data)
+    }
+  }
+
+
+})
+
+socket.on('stop', (data) => {
+  if (now_user_id.uuid != data.uuid) {
+    p.stopAction(data.uuid) 
+
+    p.stop(data.uuid)
+    console.log('stop', data)
+    player_move_lock[data.uuid] = 0
+
+  }
+
+
+})
+
+socket.on('rotation', (data) => {
+  if (now_user_id.uuid != data.uuid) {
+    p.rotationY(data.uuid, data.rotation)
+
+  }
+
+})
 
 
 
@@ -426,9 +360,8 @@ semi.on('end', function(evt, data) {
 
 
   try {
-    conn.send({
-      status:601,
-      uid:local_uid
+    socket.emit("stop", {
+      uuid: now_user_id.uuid
     });
   } catch (error) {
     console.info('Failed to send.')
@@ -445,7 +378,11 @@ semi.on('start end', function(evt, data) {
 }).on('move', function(evt, data) {
 
   if (move_lock == 0) {
-    p.rotationY(data.angle.radian)
+    p.rotationY("host", data.angle.radian)
+    socket.emit("rotation", {
+      uuid: now_user_id.uuid,
+      rotation: data.angle.radian
+    });
 
     if (start_count == 0) {
       console.log("> START", start_count, last_radian);
@@ -456,13 +393,12 @@ semi.on('start end', function(evt, data) {
     start_count += 1
     p.move('host')
 
-
     try {
-      conn.send({
-        status:600,
-        uid:local_uid,
-        rotation: data.angle.degree/57.8
+      socket.emit("move", {
+        uuid: now_user_id.uuid,
+        data: 1
       });
+
     } catch (error) {
       console.info('Failed to send.')
     }
