@@ -1,5 +1,6 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
+
 import { Ground } from "/js/classes/Ground.js"
 import { Object } from "/js/classes/Object.js"
 
@@ -39,6 +40,8 @@ class Player {
     init() {
         this.ground.init()
         this.object.init()
+
+        this.ground.sky()
 
         this.ground.addCube(1,1,1)
 

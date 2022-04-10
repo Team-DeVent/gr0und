@@ -1,4 +1,4 @@
-
+import { Sky } from "/js/objects/Sky.js";
 
 class Ground {
     constructor () {
@@ -17,6 +17,9 @@ class Ground {
         this.container = document.getElementById( 'game' );
 
         this.object
+
+        this.skyobject
+        this.sun
 
     }
 
@@ -59,6 +62,41 @@ class Ground {
         const cube1 = new THREE.Mesh( geometry1, material1 );
         this.scene.add( cube1 );
         this.object = cube1
+    }
+
+    sky() {
+        this.skyobject = new Sky();
+        this.skyobject.scale.setScalar( 450000 );
+        this.scene.add( this.skyobject );
+
+        this.sun = new THREE.Vector3();
+
+        /// GUI
+
+        const effectController = {
+            turbidity: 10,
+            rayleigh: 3,
+            mieCoefficient: 0.005,
+            mieDirectionalG: 0.7,
+            elevation: 2,
+            azimuth: 180,
+            exposure: 0.0904
+        };
+
+        const uniforms = this.skyobject.material.uniforms;
+        uniforms[ 'turbidity' ].value = effectController.turbidity;
+        uniforms[ 'rayleigh' ].value = effectController.rayleigh;
+        uniforms[ 'mieCoefficient' ].value = effectController.mieCoefficient;
+        uniforms[ 'mieDirectionalG' ].value = effectController.mieDirectionalG;
+
+        const phi = THREE.MathUtils.degToRad( 90 - effectController.elevation );
+        const theta = THREE.MathUtils.degToRad( effectController.azimuth );
+
+        this.sun.setFromSphericalCoords( 1, phi, theta );
+
+        uniforms[ 'sunPosition' ].value.copy( this.sun );
+
+        // this.renderer.toneMappingExposure = effectController.exposure;
     }
   
 }

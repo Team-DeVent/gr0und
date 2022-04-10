@@ -8,3 +8,5 @@
 * [x] 스무더 그라운드 분할
 * [x] Player class 화
 * [x] socket io realtime
+* [x] 하늘 생성
+* [x] 바닥 텍스쳐
