@@ -41,7 +41,6 @@ class Player {
         this.ground.init()
         this.object.init()
 
-        this.ground.sky()
 
         this.ground.addCube(1,1,1)
 
@@ -58,7 +57,7 @@ class Player {
             this.ground.light.target = this.ground.model.host
 
             this.ground.model.host.add( this.ground.camera );
-            this.ground.camera.position.set( 0, 4, -6 );
+            this.ground.camera.position.set( 0, 3, -7 );
             this.ground.camera.lookAt( this.ground.model.host.position );
 
             this.ground.model.host.traverse( function ( object ) {
@@ -110,6 +109,14 @@ class Player {
         this.ground.renderer.setSize( window.innerWidth, window.innerHeight );
         this.ground.renderer.outputEncoding = THREE.sRGBEncoding;
         this.ground.renderer.shadowMap.enabled = true;
+
+        this.ground.sky()
+
+        this.ground.renderer.toneMappingExposure = this.ground.microsky.effectController.exposure;
+        this.ground.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.ground.renderer.toneMappingExposure = 0.239;
+
+
         this.ground.container.appendChild( this.ground.renderer.domElement );
         this.ground.stat = new Stats();
 
@@ -233,6 +240,12 @@ class Player {
     zoomCamera(fov) {
       this.ground.camera.fov = fov
       this.ground.camera.updateProjectionMatrix();
+    }
+
+    positionCamera(x,y,z) {        
+        this.ground.camera.position.set( x,y,z );
+        this.ground.camera.lookAt( this.ground.model.host.position );
+        this.ground.camera.updateProjectionMatrix();
     }
     
     prepareCrossFade( startAction, endAction, duration, player ) {

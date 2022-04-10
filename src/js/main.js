@@ -7,7 +7,14 @@ let mode = 1; // 0: dev 1: prud
 
 let player_clip, player_action, player_key;
 let player_distance = 0.02; // 속도
-let player_camara_zoom = 90; // 속도
+let player_camara = {
+  fov: 90,
+  position: {
+    x:0,
+    y:3,
+    z:-7
+  }
+}; // fov
 
 let player_moveZ = {
   "host":0
@@ -22,15 +29,37 @@ let now_user_id = {
 document.addEventListener("keydown", keyPressed, false);
 
 button_zoom_p.addEventListener("click", () => {
-  player_camara_zoom += 5
-  p.zoomCamera(player_camara_zoom)
-  document.querySelector("#zoom_input").value = "시야 확대 "+player_camara_zoom
+  player_camara.fov += 5
+  p.zoomCamera(player_camara.fov)
+  document.querySelector("#zoom_input").value = "시야 확대 "+player_camara.fov
 });
 
 button_zoom_m.addEventListener("click", () => {
-  player_camara_zoom -= 5
-  p.zoomCamera(player_camara_zoom)
-  document.querySelector("#zoom_input").value = "시야 확대 "+player_camara_zoom
+  player_camara.fov -= 5
+  p.zoomCamera(player_camara.fov)
+  document.querySelector("#zoom_input").value = "시야 확대 "+player_camara.fov
+});
+
+camera_zoom_in.addEventListener("click", () => {
+  if (player_camara.position.y > 2 && player_camara.position.z < -2) {
+    player_camara.position.y -= 0.4
+    player_camara.position.z += 0.4
+
+    p.positionCamera(0,player_camara.position.y, player_camara.position.z)
+
+    document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
+  }
+});
+
+camera_zoom_out.addEventListener("click", () => {
+  if (player_camara.position.y < 9 && player_camara.position.z > -12) {
+    player_camara.position.y += 0.4
+    player_camara.position.z -= 0.4
+
+    p.positionCamera(0,player_camara.position.y, player_camara.position.z)
+
+    document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
+  }
 });
 
 
@@ -56,18 +85,23 @@ function keyPressed(e) {
 
   }
   if (e.keyCode == 48) { // 0 (zoom camara +)
-    player_camara_zoom += 5
-    p.zoomCamera(player_camara_zoom)
-    addConsoleMessage(`zoom ${player_camara_zoom}`)
+    player_camara.zoom += 5
+    p.zoomCamera(player_camara.zoom)
+    addConsoleMessage(`zoom ${player_camara.zoom}`)
 
   } else if (e.keyCode == 57) { // 9 (zoom camara -)
-    player_camara_zoom -= 5
-    p.zoomCamera(player_camara_zoom)
-    addConsoleMessage(`zoom ${player_camara_zoom}`)
+    player_camara.zoom -= 5
+    p.zoomCamera(player_camara.zoom)
+    addConsoleMessage(`zoom ${player_camara.zoom}`)
 
   }
   if (e.keyCode == 85) { // u
     console.log(p.ground)
+
+  }
+
+  if (e.keyCode == 80) { // p
+
 
   }
 
