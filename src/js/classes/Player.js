@@ -33,7 +33,7 @@ class Player {
             "host":[0,0,0]
         };
         this.player_moveX = 0; 
-        this.player_distance = 0.02; // 속도
+        this.player_distance = 0.015; // 속도
 
     }
 
@@ -127,7 +127,7 @@ class Player {
         });
     }
 
-    add(player) {
+    add(player, player_position) {
         this.ground.loader.load.bind(this)
         console.log(this, player, this.playerMove)
 
@@ -135,6 +135,7 @@ class Player {
         this.ground.loader.load( '/model/Xbot.glb',  ( gltf ) => {
             
             this.ground.model[player] = gltf.scene;
+            
             this.playerMove[player] = [0,0,0]
             
             this.ground.scene.add( this.ground.model[player] );
@@ -146,41 +147,52 @@ class Player {
             });
             console.log(gltf)
       
-          this.ground.skeleton[player] = new THREE.SkeletonHelper( this.ground.model[player] );
-          this.ground.skeleton[player].visible = false;
-          this.ground.scene.add( this.ground.skeleton[player] );
-      
-          const animations = gltf.animations;
-          console.log(animations)
-          this.ground.player_animations[player] = animations
-      
-          this.ground.mixer[player] = new THREE.AnimationMixer( this.ground.model[player] );
-          this.addBaseActions(player)
-      
+            this.ground.skeleton[player] = new THREE.SkeletonHelper( this.ground.model[player] );
+            this.ground.skeleton[player].visible = false;
+            this.ground.scene.add( this.ground.skeleton[player] );
+        
+            const animations = gltf.animations;
+            console.log(animations)
+            this.ground.player_animations[player] = animations
+        
+            this.ground.mixer[player] = new THREE.AnimationMixer( this.ground.model[player] );
+            this.addBaseActions(player)
+        
           
+            console.log(this.ground.model[player].position, player_position)
+            this.ground.model[player].position.setX( player_position['x'] );
+            this.ground.model[player].position.setY( player_position['y'] );
+            this.ground.model[player].position.setZ( player_position['z'] );
+
+            //,  position.y,  position.z
+            this.ground.model[player].updateMatrix();
+
       
-          for ( let i = 0; i !== animations.length; ++ i ) {
-      
-            let clip = animations[ i ];
-            const name = clip.name;
-      
-            if ( this.baseActions[player][ name ] ) {
-              const action = this.ground.mixer[player].clipAction( clip );
-              this.activateAction( action, player );
-              this.baseActions[player][ name ].action = action;
-      
-            } else if ( this.additiveActions[ name ] ) {
-              THREE.AnimationUtils.makeClipAdditive( clip );
-      
-              if ( clip.name.endsWith( '_pose' ) ) {
-                clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
-              }
-      
-              const action =this.ground.mixer[player].clipAction( clip );
-              this.activateAction( action, player );
+            for ( let i = 0; i !== animations.length; ++ i ) {
+        
+                let clip = animations[ i ];
+                const name = clip.name;
+        
+                if ( this.baseActions[player][ name ] ) {
+                const action = this.ground.mixer[player].clipAction( clip );
+                this.activateAction( action, player );
+                this.baseActions[player][ name ].action = action;
+        
+                } else if ( this.additiveActions[ name ] ) {
+                THREE.AnimationUtils.makeClipAdditive( clip );
+        
+                if ( clip.name.endsWith( '_pose' ) ) {
+                    clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
+                }
+        
+                const action =this.ground.mixer[player].clipAction( clip );
+                this.activateAction( action, player );
+                }
             }
-          }
         });
+
+
+
     }
 
     addBaseActions(player) {
@@ -210,6 +222,10 @@ class Player {
     rotationY(player, degree) {
         this.ground.model[player].rotation.y = degree;
 
+    }
+
+    getPosition(player) {
+        return this.ground.model[player].position
     }
 
     activateAction(action, uid) {
@@ -332,6 +348,9 @@ class Player {
       
         }
         
+        //this.ground.microsky.exposure += 0.0004
+        //this.ground.renderer.toneMappingExposure = this.ground.microsky.exposure;
+
       
         const mixerUpdateDelta = this.ground.clock.getDelta();
       

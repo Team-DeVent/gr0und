@@ -28,6 +28,16 @@ let now_user_id = {
 
 document.addEventListener("keydown", keyPressed, false);
 
+let last_touch = 0
+document.addEventListener('touchend', function (event) {
+  let now_date = new Date();
+  let get_time = now_date.getTime();
+  if (get_time - last_touch <= 300) {
+    event.preventDefault(); 
+  } 
+  last_touch = now; 
+}, false);
+
 button_zoom_p.addEventListener("click", () => {
   player_camara.fov += 5
   p.zoomCamera(player_camara.fov)
@@ -322,6 +332,11 @@ zone: document.getElementById('game'),
 let start_count = 0, move_lock = 0;
 let last_radian_temp = 0;
 let last_radian = 0;
+let player_default_position = {
+  x:0,
+  y:0,
+  z:0
+}
 
 const socket = io();
 
@@ -331,7 +346,8 @@ socket.emit('init', {
 
 socket.on('init', (data) => {
   if (now_user_id.uuid != data.uuid) {
-    p.add(data.uuid)
+
+    p.add(data.uuid, player_default_position)
     console.log(data.uuid)
     player_move_lock[data.uuid] = 0
   }
@@ -358,8 +374,8 @@ socket.on('move', (data) => {
 socket.on('stop', (data) => {
   if (now_user_id.uuid != data.uuid) {
     p.stopAction(data.uuid) 
-
     p.stop(data.uuid)
+
     console.log('stop', data)
     player_move_lock[data.uuid] = 0
 
@@ -374,6 +390,23 @@ socket.on('rotation', (data) => {
 
   }
 
+})
+
+let is_first_connect = true;
+
+socket.on('connected', (data) => {
+  if (is_first_connect) {
+    for (let player in data) {
+      console.log(data[player])
+
+      p.add(data[player].uuid, {
+        x: data[player].position.x,
+        y: data[player].position.y,
+        z: data[player].position.z
+      })
+    }
+    is_first_connect = false
+  }
 })
 
 
@@ -392,10 +425,19 @@ semi.on('end', function(evt, data) {
 
   }
 
-
+  let end_position = p.getPosition('host')
+  console.log(end_position.x)
   try {
+
+
     socket.emit("stop", {
-      uuid: now_user_id.uuid
+      uuid: now_user_id.uuid,
+      position: {
+        x: end_position.x,
+        y: end_position.y,
+        z: end_position.z
+
+      }
     });
   } catch (error) {
     console.info('Failed to send.')

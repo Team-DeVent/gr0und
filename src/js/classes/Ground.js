@@ -34,7 +34,7 @@ class Ground {
         hemiLight.position.set( 0, 120, 0 );
         this.scene.add( hemiLight );
 
-        const dirLight = new THREE.DirectionalLight( 0xffffff );
+        const dirLight = new THREE.DirectionalLight( 0xf7e5df );
         dirLight.position.set( 3, 1000, 2500 );
         dirLight.castShadow = true;
         dirLight.shadow.camera.top = 2;
@@ -73,6 +73,8 @@ class Ground {
         this.microsky.object = new Sky();
         this.microsky.object.scale.setScalar( 450000 );
         this.scene.add( this.microsky.object );
+
+        this.microsky.exposure = 0.239;
 
         this.sun = new THREE.Vector3();
 
