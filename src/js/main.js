@@ -323,7 +323,7 @@ let player_move_lock = {}
 */
 
 var semi = nipplejs.create({
-zone: document.getElementById('game'),
+  zone: document.getElementById('game'),
   mode: 'semi',
   catchDistance: 150,
   color: 'white'

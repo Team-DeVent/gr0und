@@ -129,45 +129,30 @@ class Player {
 
     add(player, player_position) {
         this.ground.loader.load.bind(this)
-        console.log(this, player, this.playerMove)
-
 
         this.ground.loader.load( '/model/Xbot.glb',  ( gltf ) => {
             
             this.ground.model[player] = gltf.scene;
-            
             this.playerMove[player] = [0,0,0]
-            
             this.ground.scene.add( this.ground.model[player] );
-            console.log(this.ground.model[player])
       
       
             this.ground.model[player].traverse( function ( object ) {
                 if (object.isMesh) object.castShadow = true;
             });
-            console.log(gltf)
       
             this.ground.skeleton[player] = new THREE.SkeletonHelper( this.ground.model[player] );
             this.ground.skeleton[player].visible = false;
             this.ground.scene.add( this.ground.skeleton[player] );
         
             const animations = gltf.animations;
-            console.log(animations)
             this.ground.player_animations[player] = animations
         
             this.ground.mixer[player] = new THREE.AnimationMixer( this.ground.model[player] );
             this.addBaseActions(player)
-        
           
-            console.log(this.ground.model[player].position, player_position)
-            this.ground.model[player].position.setX( player_position['x'] );
-            this.ground.model[player].position.setY( player_position['y'] );
-            this.ground.model[player].position.setZ( player_position['z'] );
+            this.setPosition(player, player_position)
 
-            //,  position.y,  position.z
-            this.ground.model[player].updateMatrix();
-
-      
             for ( let i = 0; i !== animations.length; ++ i ) {
         
                 let clip = animations[ i ];
@@ -190,8 +175,6 @@ class Player {
                 }
             }
         });
-
-
 
     }
 
@@ -226,6 +209,14 @@ class Player {
 
     getPosition(player) {
         return this.ground.model[player].position
+    }
+
+    setPosition(player, position) {
+        console.log(this.ground.model[player].position, position)
+        this.ground.model[player].position.setX( position['x'] );
+        this.ground.model[player].position.setY( position['y'] );
+        this.ground.model[player].position.setZ( position['z'] );
+        this.ground.model[player].updateMatrix();
     }
 
     activateAction(action, uid) {
