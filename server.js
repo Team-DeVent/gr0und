@@ -8,6 +8,17 @@ export async function socket (io) {
         socket.emit("connected", player)
         console.log(player)
 
+        socket.on("disconnect", () => {
+            try {
+                console.log(socket.id);
+                io.emit('remove', player[socket.id].uuid)
+                delete player[socket.id]
+            } catch (error) {
+                console.log('error')
+            }
+
+        })
+
 
         socket.on('init', (data) => {
             player[socket.id] = {

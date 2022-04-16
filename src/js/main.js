@@ -392,6 +392,11 @@ socket.on('rotation', (data) => {
 
 })
 
+socket.on('remove', (uuid) => {
+  p.remove(uuid)
+
+})
+
 let is_first_connect = true;
 
 socket.on('connected', (data) => {

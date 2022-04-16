@@ -178,6 +178,12 @@ class Player {
 
     }
 
+    remove(player) {
+        this.ground.scene.remove( this.ground.model[player] );
+        this.ground.scene.remove( this.ground.skeleton[player] );
+        delete this.ground.skeleton[player]
+    }
+
     addBaseActions(player) {
         this.baseActions[player] = {
           idle: { weight: 1 },
