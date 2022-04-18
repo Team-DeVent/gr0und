@@ -32,8 +32,10 @@ class Player {
         this.playerMove = {
             "host":[0,0,0]
         };
-        this.player_moveX = 0; 
         this.player_distance = 0.015; // 속도
+
+        //this.test = this.test.bind(this);
+        //this.test.this = this.test.this.bind(this)
 
     }
 
@@ -43,6 +45,8 @@ class Player {
 
 
         this.ground.addCube(1,1,1)
+
+        this.object.addObject(this, 'objects/lowpolytree.obj')
 
 
         this.ground.loader = new THREE.GLTFLoader();
@@ -125,6 +129,7 @@ class Player {
         window.addEventListener( 'resize', () => {
           this.onWindowResize()
         });
+
     }
 
     add(player, player_position) {
@@ -178,6 +183,7 @@ class Player {
 
     }
 
+
     remove(player) {
         this.ground.scene.remove( this.ground.model[player] );
         this.ground.scene.remove( this.ground.skeleton[player] );
@@ -200,18 +206,17 @@ class Player {
 
     move(player) { // 0: 앞으로 1: 뒤로 2: 왼쪽 3: 오른쪽
         this.playerMove[player][2] = this.player_distance
-        this.player_moveX = 0
     }
     
     stop(player) {
         this.playerMove[player][2] = 0
-        this.player_moveX = 0
     }
 
     rotationY(player, degree) {
         this.ground.model[player].rotation.y = degree;
 
     }
+
 
     getPosition(player) {
         return this.ground.model[player].position
@@ -335,13 +340,11 @@ class Player {
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
         this.ground.model.host.translateZ( this.playerMove["host"][2]);
-        this.ground.model.host.translateX( this.player_moveX);
         //console.log(player_moveZ["host"])
         
         for (var i in this.ground.model) {
           //console.log(i, String(i), player_moveZ[String(i)])
           this.ground.model[i].translateZ( this.playerMove[i][2]);
-          //model.translateX( player_moveX);
       
         }
         

@@ -1,5 +1,7 @@
 import { Sky } from "/js/objects/Sky.js";
 
+
+
 class Ground {
     constructor () {
         this.scene;
@@ -19,7 +21,6 @@ class Ground {
         this.object
 
         this.microsky = {}
-        this.sun
 
     }
 
@@ -76,7 +77,7 @@ class Ground {
 
         this.microsky.exposure = 0.239;
 
-        this.sun = new THREE.Vector3();
+        this.microsky.sun = new THREE.Vector3();
 
         this.microsky.effectController = {
             turbidity: 10,
@@ -97,9 +98,9 @@ class Ground {
         const phi = THREE.MathUtils.degToRad( 90 - this.microsky.effectController.elevation );
         const theta = THREE.MathUtils.degToRad( this.microsky.effectController.azimuth );
 
-        this.sun.setFromSphericalCoords( 1, phi, theta );
+        this.microsky.sun.setFromSphericalCoords( 1, phi, theta );
 
-        uniforms[ 'sunPosition' ].value.copy( this.sun );
+        uniforms[ 'sunPosition' ].value.copy( this.microsky.sun );
 
     }
   

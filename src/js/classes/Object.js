@@ -1,6 +1,7 @@
 
 class Object {
     constructor () {
+
         this.world = new CANNON.World();
         this.shape;
         this.body; 
@@ -28,6 +29,24 @@ class Object {
         floor_body.quaternion.setFromAxisAngle(new CANNON.Vec3(- 1, 0, 0), Math.PI * 0.5) 
 
         this.world.addBody(floor_body);
+
+
+    }
+
+    addObject(self, url) {
+        //console.log(self)
+        const loader = new THREE.OBJLoader();
+
+        loader.load( url, ( object ) => {
+            self.ground.scene.add( object );
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log( 'An error happened' , error);
+        }
+        );
     }
 }
 

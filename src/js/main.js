@@ -111,7 +111,8 @@ function keyPressed(e) {
   }
 
   if (e.keyCode == 80) { // p
-
+    p.test.log()
+    console.log(p.test.getPosition('host'))
 
   }
 
