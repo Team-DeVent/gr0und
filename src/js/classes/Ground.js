@@ -62,13 +62,7 @@ class Ground {
         this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
     }
 
-    addCube(x,y,z) {
-        const geometry1 = new THREE.BoxGeometry( x, y, z );
-        const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-        const cube1 = new THREE.Mesh( geometry1, material1 );
-        this.scene.add( cube1 );
-        this.object = cube1
-    }
+
 
     sky() {
         this.microsky.object = new Sky();

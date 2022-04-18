@@ -7,7 +7,7 @@ import { Object } from "/js/classes/Object.js"
 class Player {
     constructor () {
         this.ground = new Ground()
-        this.object = new Object()
+        this.object = new Object(this)
 
         this.crossFadeControls = [];
         this.currentBaseAction = 'idle';
@@ -44,9 +44,9 @@ class Player {
         this.object.init()
 
 
-        this.ground.addCube(1,1,1)
+        this.object.addCube(1,1,1)
 
-        this.object.addObject(this, 'objects/lowpolytree.obj')
+        this.object.addObject('objects/lowpolytree.obj')
 
 
         this.ground.loader = new THREE.GLTFLoader();
@@ -182,6 +182,8 @@ class Player {
         });
 
     }
+    
+    
 
 
     remove(player) {

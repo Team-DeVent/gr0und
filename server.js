@@ -38,10 +38,16 @@ export async function socket (io) {
         });
 
         socket.on('stop', (data) => {
-            console.log(data)
-            player[socket.id].position = data.position
-            console.log(player)
-            io.emit("stop", data)
+            try {
+                console.log(data)
+                player[socket.id].position = data.position
+                console.log(player)
+                io.emit("stop", data)
+            } catch (error) {
+                console.log('error')
+
+            }
+
         });
 
         socket.on('rotation', (data) => {
