@@ -46,7 +46,7 @@ class Player {
 
         this.object.addCube(1,1,1)
 
-        this.object.addObject('objects/lowpolytree.obj')
+        this.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
 
 
         this.ground.loader = new THREE.GLTFLoader();

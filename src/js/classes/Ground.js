@@ -52,7 +52,7 @@ class Ground {
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 12, 12 );
 
-        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false, map: texture } ) );
+        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ),new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: true, map: texture } ) );
         mesh.rotation.x = - Math.PI / 2;
         mesh.receiveShadow = true;
         this.scene.add( mesh );

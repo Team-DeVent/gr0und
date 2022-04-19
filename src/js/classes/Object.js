@@ -42,11 +42,16 @@ class Object {
         this.self.ground.object = cube1
     }
 
-    addObject(url) {
+    addObject(url, position) {
         console.log(this.self)
         const loader = new THREE.OBJLoader();
 
         loader.load( url, ( object ) => {
+            console.log(object)
+            object.position.setX( position.x );
+            object.position.setY( position.y );
+            object.position.setZ( position.z );
+
             this.self.ground.scene.add( object );
         },
         function ( xhr ) {
