@@ -27,7 +27,8 @@ export async function socket (io) {
                     x:0,
                     y:0,
                     z:0
-                }
+                },
+                rotation:0
             }
             io.emit("init", data)
         });
@@ -51,8 +52,12 @@ export async function socket (io) {
         });
 
         socket.on('rotation', (data) => {
-            //console.log(data)
-            io.emit("rotation", data)
+            try {
+                player[socket.id].rotation = data.rotation
+                io.emit("rotation", data)
+            } catch (error) {
+                console.log('error')
+            }
         });
     });
 }

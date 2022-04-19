@@ -230,7 +230,6 @@ function modifyTimeScale(speed) {
 
 
 
-
 // animationAction.crossFadeTo()가 시작 동작을 비활성화하고 설정하므로 이 기능이 필요합니다.
 // 시작 동작의 시간스케일 (애니메이션 시작 기간) / (애니메이션 종료 기간)로 설정합니다.
 
@@ -256,27 +255,7 @@ function modifyTimeScale(speed) {
               *  PeerJS  *
 ========================================================
 */
-let peer_rand_id = ((Math.random()*( 999999999 - 111111111)) +111111111).toString(36).substring(8).substr(0, 4)+"-"+((Math.random()*( 999999999 - 111111111)) +111111111).toString(36).substring(8).substr(0, 4); // 4-4자리
-let user_rand_id = String(Math.round((Math.random()*( 999999999 - 111111111)) +111111111))
 
-
-let peer, conn, page_peer = peer_rand_id, is_host = window.location.href.split('#')[1] == undefined ? 1 : 0, player_peer = [], local_uid = now_user_id.u_id == null ? user_rand_id : now_user_id.u_id;
-
-    if (window.location.href.split('#')[1] == undefined) {
-    peer = new Peer(peer_rand_id, {
-      config: {'iceServers': [
-        { url: 'stun:stun.l.google.com:19302' },
-        { url: 'turn:13.250.13.83:3478?transport=udp', username: "YzYNCouZM1mhqhmseWk6",  credential: 'YzYNCouZM1mhqhmseWk6' }
-      ]}
-    })
-    } else {
-      peer = new Peer({
-        config: {'iceServers': [
-          { url: 'stun:stun.l.google.com:19302' },
-          { url: 'turn:13.250.13.83:3478?transport=udp', username: "YzYNCouZM1mhqhmseWk6",  credential: 'YzYNCouZM1mhqhmseWk6' }
-        ]}
-      }); 
-    }
 
 
 function selectGround(check) {
@@ -349,7 +328,7 @@ socket.on('init', (data) => {
   if (now_user_id.uuid != data.uuid) {
 
     p.add(data.uuid, player_default_position)
-    console.log(data.uuid)
+
     player_move_lock[data.uuid] = 0
   }
 

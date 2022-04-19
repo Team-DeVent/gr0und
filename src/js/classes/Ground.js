@@ -19,6 +19,7 @@ class Ground {
         this.container = document.getElementById( 'game' );
 
         this.object
+        this.loadmanager
 
         this.microsky = {}
 
@@ -60,6 +61,33 @@ class Ground {
 
 
         this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 100 );
+        this.loadmanager = new THREE.LoadingManager();
+        this.loadmanager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+        
+            console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        
+        };
+        
+        this.loadmanager.onLoad = function ( ) {
+        
+            console.log( 'Loading complete!');
+            document.querySelector("#loading").classList.add("div-hide")
+        
+        };
+        
+        
+        this.loadmanager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+        
+            console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        
+        };
+        
+        this.loadmanager.onError = function ( url ) {
+        
+            console.log( 'There was an error loading ' + url );
+        
+        };
+        
     }
 
 

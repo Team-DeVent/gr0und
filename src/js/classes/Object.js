@@ -44,10 +44,9 @@ class Object {
 
     addObject(url, position) {
         console.log(this.self)
-        const loader = new THREE.OBJLoader();
+        const loader = new THREE.OBJLoader(this.self.ground.loadmanager);
 
         loader.load( url, ( object ) => {
-            console.log(object)
             object.position.setX( position.x );
             object.position.setY( position.y );
             object.position.setZ( position.z );
