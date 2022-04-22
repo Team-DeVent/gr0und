@@ -69,9 +69,17 @@ class Ground {
         };
         
         this.loadmanager.onLoad = function ( ) {
+            let body = document.querySelector("#loading")
         
             console.log( 'Loading complete!');
-            document.querySelector("#loading").classList.add("div-hide")
+            setTimeout(() => {
+                body.classList.add('animate__animated', 'animate__fadeOut')
+            }, 900);
+            setTimeout(() => {
+                body.classList.add('div-hide')
+
+            }, 1100);
+            
         
         };
         
