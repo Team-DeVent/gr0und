@@ -1,6 +1,6 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
-import { Player } from "/js/classes/Player.js";
+import { Base } from "/js/classes/base.js";
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
 let mode = 1; // 0: dev 1: prud
@@ -40,13 +40,13 @@ document.addEventListener('touchend', function (event) {
 
 button_zoom_p.addEventListener("click", () => {
   player_camara.fov += 5
-  p.zoomCamera(player_camara.fov)
+  base.handle.player.camera.zoom(player_camara.fov)
   document.querySelector("#zoom_input").value = "시야 확대 "+player_camara.fov
 });
 
 button_zoom_m.addEventListener("click", () => {
   player_camara.fov -= 5
-  p.zoomCamera(player_camara.fov)
+  base.handle.player.camera.zoom(player_camara.fov)
   document.querySelector("#zoom_input").value = "시야 확대 "+player_camara.fov
 });
 
@@ -55,7 +55,7 @@ camera_zoom_in.addEventListener("click", () => {
     player_camara.position.y -= 0.4
     player_camara.position.z += 0.4
 
-    p.positionCamera(0,player_camara.position.y, player_camara.position.z)
+    base.handle.player.camera.position(0,player_camara.position.y, player_camara.position.z)
 
     document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
   }
@@ -66,7 +66,7 @@ camera_zoom_out.addEventListener("click", () => {
     player_camara.position.y += 0.4
     player_camara.position.z -= 0.4
 
-    p.positionCamera(0,player_camara.position.y, player_camara.position.z)
+    base.handle.player.camera.position(0,player_camara.position.y, player_camara.position.z)
 
     document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
   }
@@ -96,12 +96,12 @@ function keyPressed(e) {
   }
   if (e.keyCode == 48) { // 0 (zoom camara +)
     player_camara.zoom += 5
-    p.zoomCamera(player_camara.zoom)
+    base.handle.player.camera.zoom(player_camara.zoom)
     addConsoleMessage(`zoom ${player_camara.zoom}`)
 
   } else if (e.keyCode == 57) { // 9 (zoom camara -)
     player_camara.zoom -= 5
-    p.zoomCamera(player_camara.zoom)
+    base.handle.player.camera.zoom(player_camara.zoom)
     addConsoleMessage(`zoom ${player_camara.zoom}`)
 
   }
@@ -120,12 +120,14 @@ function keyPressed(e) {
 
 
 
-let p = new Player()
+let base = new Base()
 
-p.init()
+base.init()
 
-p.zoomCamera(90)
+base.handle.player.object.init()
 
+console.log(base.handle.player)
+base.handle.player.camera.zoom(90)
 
 
 
@@ -327,7 +329,7 @@ socket.emit('init', {
 socket.on('init', (data) => {
   if (now_user_id.uuid != data.uuid) {
 
-    p.add(data.uuid, player_default_position)
+    base.handle.player.object.add(data.uuid, player_default_position)
 
     player_move_lock[data.uuid] = 0
   }
@@ -337,13 +339,13 @@ socket.on('init', (data) => {
 socket.on('move', (data) => {
   if (now_user_id.uuid != data.uuid) {
     if (player_move_lock[data.uuid] == 0) {
-      p.moveAction(data.uuid) 
-      p.move(data.uuid)
+      base.handle.player.object.moveAction(data.uuid) 
+      base.handle.player.object.move(data.uuid)
       console.log('>>>>>>>>>>>>>', data)
       player_move_lock[data.uuid] = 1
 
     } else {
-      p.move(data.uuid)
+      base.handle.player.object.move(data.uuid)
       console.log(player_move_lock[data.uuid], data)
     }
   }
@@ -353,8 +355,8 @@ socket.on('move', (data) => {
 
 socket.on('stop', (data) => {
   if (now_user_id.uuid != data.uuid) {
-    p.stopAction(data.uuid) 
-    p.stop(data.uuid)
+    base.handle.player.object.stopAction(data.uuid) 
+    base.handle.player.object.stop(data.uuid)
 
     console.log('stop', data)
     player_move_lock[data.uuid] = 0
@@ -366,14 +368,14 @@ socket.on('stop', (data) => {
 
 socket.on('rotation', (data) => {
   if (now_user_id.uuid != data.uuid) {
-    p.rotationY(data.uuid, data.rotation)
+    base.handle.player.object.rotationY(data.uuid, data.rotation)
 
   }
 
 })
 
 socket.on('remove', (uuid) => {
-  p.remove(uuid)
+  base.handle.player.object.remove(uuid)
 
 })
 
@@ -384,7 +386,7 @@ socket.on('connected', (data) => {
     for (let player in data) {
       console.log(data[player])
 
-      p.add(data[player].uuid, {
+      base.handle.player.object.add(data[player].uuid, {
         x: data[player].position.x,
         y: data[player].position.y,
         z: data[player].position.z
@@ -403,14 +405,14 @@ semi.on('end', function(evt, data) {
   if (start_count !== 0) {
     move_lock = 1 // 이동 제한
     start_count = 0
-    p.stopAction("host") 
+    base.handle.player.object.stopAction("host") 
 
-    p.stop("host")
+    base.handle.player.object.stop("host")
     last_radian = last_radian_temp
 
   }
 
-  let end_position = p.getPosition('host')
+  let end_position = base.handle.player.object.getPosition('host')
   console.log(end_position.x)
   try {
 
@@ -439,7 +441,7 @@ semi.on('start end', function(evt, data) {
 }).on('move', function(evt, data) {
 
   if (move_lock == 0) {
-    p.rotationY("host", data.angle.radian)
+    base.handle.player.object.rotationY("host", data.angle.radian)
     socket.emit("rotation", {
       uuid: now_user_id.uuid,
       rotation: data.angle.radian
@@ -448,11 +450,11 @@ semi.on('start end', function(evt, data) {
     if (start_count == 0) {
       console.log("> START", start_count, last_radian);
 
-      p.moveAction("host") 
+      base.handle.player.object.moveAction("host") 
 
     }
     start_count += 1
-    p.move('host')
+    base.handle.player.object.move('host')
 
     try {
       socket.emit("move", {

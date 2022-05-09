@@ -1,13 +1,12 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
 
-import { Ground } from "/js/classes/Ground.js"
-import { Object } from "/js/classes/Object.js"
 
 class Player {
-    constructor () {
-        this.ground = new Ground()
-        this.object = new Object(this)
+    constructor (self) {
+
+        this.ground = self
+
 
         this.crossFadeControls = [];
         this.currentBaseAction = 'idle';
@@ -40,13 +39,11 @@ class Player {
     }
 
     init() {
-        this.ground.init()
-        this.object.init()
 
 
-        this.object.addCube(1,1,1)
+        this.ground.handle.object.addCube(1,1,1)
 
-        this.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
+        this.ground.handle.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
 
 
         this.ground.loader = new THREE.GLTFLoader();
@@ -108,17 +105,6 @@ class Player {
 
 
 
-        this.ground.renderer = new THREE.WebGLRenderer( { antialias: true } );
-        this.ground.renderer.setPixelRatio( window.devicePixelRatio );
-        this.ground.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.ground.renderer.outputEncoding = THREE.sRGBEncoding;
-        this.ground.renderer.shadowMap.enabled = true;
-
-        this.ground.sky()
-
-        this.ground.renderer.toneMappingExposure = this.ground.microsky.effectController.exposure;
-        this.ground.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.ground.renderer.toneMappingExposure = 0.239;
 
 
         this.ground.container.appendChild( this.ground.renderer.domElement );
@@ -257,16 +243,8 @@ class Player {
     }
 
 
-    zoomCamera(fov) {
-      this.ground.camera.fov = fov
-      this.ground.camera.updateProjectionMatrix();
-    }
 
-    positionCamera(x,y,z) {        
-        this.ground.camera.position.set( x,y,z );
-        this.ground.camera.lookAt( this.ground.model.host.position );
-        this.ground.camera.updateProjectionMatrix();
-    }
+
     
     prepareCrossFade( startAction, endAction, duration, player ) {
 
@@ -358,8 +336,8 @@ class Player {
       
         //mixer.host.update( mixerUpdateDelta );
 
-        this.object.world.step(1 / 60, mixerUpdateDelta, 3)
-        this.ground.object.position.copy(this.object.body.position)
+        this.ground.gravity.world.step(1 / 60, mixerUpdateDelta, 3)
+        //this.ground.object.position.copy(this.ground.gravity.body.position)
 
 
         for (var i in this.ground.mixer) {
