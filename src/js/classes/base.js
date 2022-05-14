@@ -1,5 +1,6 @@
 import { Object } from "/js/classes/object/Object.js"
 import { Player } from "/js/classes/player/Player.js"
+import { Action } from "/js/classes/player/action.js"
 
 import { Ground } from "/js/classes/world/ground.js"
 import { Renderer } from "/js/classes/world/renderer.js";
@@ -18,7 +19,8 @@ class Base {
         this.handle = {
             player: {
                 object: new Player(this),
-                camera: new Camara(this)
+                camera: new Camara(this),
+                action: new Action(this)
             },
             world: {
                 ground: new Ground(this),
@@ -45,6 +47,28 @@ class Base {
             world: new CANNON.World(),
             shape: {},
             body: {}
+        }
+        this.player = {
+            crossFadeControls: [],
+            currentBaseAction: 'idle',
+            allActions: [],
+            baseActions: {
+                host: {
+                    idle: { weight: 1 },
+                    walk: { weight: 0 },
+                    run: { weight: 0 }
+                }
+            },
+            additiveActions: {
+                sneak_pose: { weight: 0 },
+                sad_pose: { weight: 0 },
+                agree: { weight: 0 },
+                headShake: { weight: 0 }
+            },
+            playerMove: {
+                "host":[0,0,0]
+            },
+            playerDistance: 0.015, // 속도
         }
         this.player_animations = {};
         this.player_model = {};

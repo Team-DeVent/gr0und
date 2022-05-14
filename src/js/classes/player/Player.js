@@ -80,13 +80,13 @@ class Player {
                 let clip = animations[ i ];
                 const name = clip.name;
 
-                if ( this.baseActions['host'][ name ] ) {
+                if ( this.ground.player.baseActions['host'][ name ] ) {
                     const action = this.ground.mixer.host.clipAction( clip );
-                    this.activateAction( action, 'host' );
-                    this.baseActions['host'][ name ].action = action;
-                    this.allActions.push( action );
+                    this.ground.handle.player.action.activate( action, 'host' );
+                    this.ground.player.baseActions['host'][ name ].action = action;
+                    this.ground.player.allActions.push( action );
 
-                } else if ( this.additiveActions[ name ] ) {
+                } else if ( this.ground.player.additiveActions[ name ] ) {
                     THREE.AnimationUtils.makeClipAdditive( clip );
 
                     if ( clip.name.endsWith( '_pose' ) ) {
@@ -94,9 +94,9 @@ class Player {
                     }
 
                     const action = this.ground.mixer.host.clipAction( clip );
-                    this.activateAction( action, 'host' );
-                    this.additiveActions[ name ].action = action;
-                    this.allActions.push( action );
+                    this.ground.handle.player.action.activate( action, 'host' );
+                    this.ground.player.additiveActions[ name ].action = action;
+                    this.ground.player.allActions.push( action );
                 }
             }
 
@@ -178,13 +178,7 @@ class Player {
         delete this.ground.skeleton[player]
     }
 
-    addBaseActions(player) {
-        this.baseActions[player] = {
-          idle: { weight: 1 },
-          walk: { weight: 0 },
-          run: { weight: 0 }
-        }
-    }
+
 
     setWeight(action, weight) {
         action.enabled = true;
@@ -218,97 +212,11 @@ class Player {
         this.ground.model[player].updateMatrix();
     }
 
-    activateAction(action, uid) {
-        const clip = action.getClip();
-        const settings = this.baseActions[uid][ clip.name ] || this.additiveActions[ clip.name ];
-        this.setWeight( action, settings.weight );
-        action.play();
-    }
-
-    moveAction(uid) {
-        const settings = this.baseActions[uid][ 'walk' ];
-        const currentSettings = this.baseActions[uid][ 'idle' ];
-        const currentAction = currentSettings ? currentSettings.action : null;
-        const action = settings ? settings.action : null;
-        console.log("> >>", currentAction, action)
-        this.prepareCrossFade( currentAction, action, 0.25, uid);
-    }
-    
-    stopAction(uid) {
-        const settings = this.baseActions[uid][ 'idle' ];
-        const currentSettings = this.baseActions[uid][ 'walk' ];
-        const currentAction = currentSettings ? currentSettings.action : null;
-        const action = settings ? settings.action : null;
-        this.prepareCrossFade( currentAction, action, 0.25, uid);
-    }
 
 
 
 
-    
-    prepareCrossFade( startAction, endAction, duration, player ) {
 
-        // 현재 동작이 '유휴'인 경우 크로스페이드(crossfade)를 즉시 실행합니다;
-        // 그렇지 않으면 현재 작업이 현재 루프를 완료할 때까지 기다립니다.
-        if ( this.currentBaseAction === 'idle' || ! startAction || ! endAction ) {
-            this.executeCrossFade( startAction, endAction, duration, player );
-        } else {
-            this.synchronizeCrossFade( startAction, endAction, duration, player );
-        }
-      
-        // Update control colors
-        if ( endAction ) {
-            const clip = endAction.getClip();
-            this.currentBaseAction = clip.name;
-        } else {
-            this.currentBaseAction = 'None';
-        }
-      
-        this.crossFadeControls.forEach( function ( control ) {
-            const name = control.property;
-            if ( name === currentBaseAction ) {
-                control.setActive();
-            } else {
-                control.setInactive();
-            }
-        });
-    }
-      
-
-
-
-    synchronizeCrossFade(startAction, endAction, duration, player) {
-        this.ground.mixer[player].addEventListener( 'loop', onLoopFinished );
-    
-        let self = this
-        function onLoopFinished( event ) {
-            if ( event.action === startAction ) {
-                self.ground.mixer[player].removeEventListener( 'loop', onLoopFinished );
-                self.executeCrossFade( startAction, endAction, duration, player );
-            }
-        }
-    }
-    
-    
-  
-    executeCrossFade(startAction, endAction, duration, player) {
-        // 시작 동작뿐만 아니라 종료 동작도 페이딩 전에 1의 가중치를 얻어야 합니다.
-        // (이 플레이스에서 이미 보장된 시작 동작과 관련하여)
-        //console.log("executeCrossFade",startAction, endAction)
-    
-        if (endAction) {
-            this.setWeight( endAction, 1 );
-            endAction.time = 0;
-        
-            if (startAction) {  // Crossfade with warping
-                startAction.crossFadeTo( endAction, duration, true );
-            } else {  // Fade in
-                endAction.fadeIn( duration );
-            }
-        } else {  // Fade out
-            startAction.fadeOut( duration );
-        }
-    }
 
     onWindowResize() {
         //this.onWindowResize.bind(this) 
@@ -337,7 +245,7 @@ class Player {
         //mixer.host.update( mixerUpdateDelta );
 
         this.ground.gravity.world.step(1 / 60, mixerUpdateDelta, 3)
-        //this.ground.object.position.copy(this.ground.gravity.body.position)
+        this.ground.object.position.copy(this.ground.gravity.body['sphere'].position)
 
 
         for (var i in this.ground.mixer) {
