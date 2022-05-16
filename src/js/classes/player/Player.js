@@ -199,6 +199,10 @@ class Player {
 
     }
 
+    getRotation(player) {
+        //console.log(this.ground.model[player].rotation)
+        return this.ground.model[player].rotation
+    }
 
     getPosition(player) {
         return this.ground.model[player].position

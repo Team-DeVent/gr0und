@@ -413,6 +413,9 @@ semi.on('end', function(evt, data) {
   }
 
   let end_position = base.handle.player.object.getPosition('host')
+  let end_rotation  = base.handle.player.object.getRotation('host')
+  last_radian = end_rotation.y
+
   console.log(end_position.x)
   try {
 
@@ -435,13 +438,17 @@ semi.on('end', function(evt, data) {
   }, 1000)
 })
 
-
+let change_radian = 0
 semi.on('start end', function(evt, data) {
   //console.log(data);
 }).on('move', function(evt, data) {
 
   if (move_lock == 0) {
-    base.handle.player.object.rotationY("host", data.angle.radian)
+    
+    change_radian = last_radian+(data.angle.radian-(90*(Math.PI/180)))
+    //console.log(last_radian, change_radian)
+
+    base.handle.player.object.rotationY("host", change_radian)
     socket.emit("rotation", {
       uuid: now_user_id.uuid,
       rotation: data.angle.radian
