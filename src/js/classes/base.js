@@ -74,7 +74,7 @@ class Base {
         this.player_model = {};
         this.container = document.getElementById( 'game' );
 
-        this.object
+        this.object = {}
         this.loadmanager
 
         this.microsky = {}

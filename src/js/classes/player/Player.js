@@ -31,7 +31,12 @@ class Player {
         this.playerMove = {
             "host":[0,0,0]
         };
-        this.player_distance = 0.015; // 속도
+        this.playerJump = {
+            "host":0
+        };
+        this.player_distance = 9; // 속도
+        this.playerLocalVelocity = new CANNON.Vec3();
+
 
         //this.test = this.test.bind(this);
         //this.test.this = this.test.this.bind(this)
@@ -54,6 +59,20 @@ class Player {
         this.ground.loader.load( '/model/Xbot.glb', ( gltf ) => {
             console.log(this)
             this.ground.model.host = gltf.scene;
+
+
+            this.ground.object['player'] = this.ground.model.host
+
+            this.ground.gravity.shape['player'] = new CANNON.Box(new CANNON.Vec3(1, 0, 1));
+
+            this.ground.gravity.body['player'] = new CANNON.Body({
+              mass: 1,
+              position: new CANNON.Vec3(0, 2, 0),
+              shape: this.ground.gravity.shape['player'],
+            });
+            this.ground.gravity.world.addBody(this.ground.gravity.body['player']);
+
+
             this.ground.scene.add( this.ground.model.host );
             this.ground.light.target = this.ground.model.host
 
@@ -116,6 +135,7 @@ class Player {
           this.onWindowResize()
         });
 
+        
     }
 
     add(player, player_position) {
@@ -194,8 +214,13 @@ class Player {
         this.playerMove[player][2] = 0
     }
 
+    jump(player, value) {
+        this.playerJump[player] = value
+    }
+
     rotationY(player, degree) {
         this.ground.model[player].rotation.y = degree;
+        this.ground.gravity.body['player'].quaternion.setFromEuler(0, degree, 0);
 
     }
 
@@ -232,6 +257,21 @@ class Player {
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
         this.ground.model.host.translateZ( this.playerMove["host"][2]);
+
+        this.playerLocalVelocity.set( 0, 0, this.playerMove["host"][2] * 2 )
+        let worldVelocity = this.ground.gravity.body['player'].quaternion.vmult( this.playerLocalVelocity );
+
+        this.ground.gravity.body['player'].velocity.x = worldVelocity.x;
+        this.ground.gravity.body['player'].velocity.z = worldVelocity.z;
+        if (this.playerJump["host"] != 0) {
+            this.ground.gravity.body['player'].velocity.y = this.playerJump["host"]
+
+        }
+
+
+        //this.ground.gravity.body['player'].velocity.x += px
+        //console.log(this.ground.gravity.body['player'])
+
         //console.log(player_moveZ["host"])
         
         for (var i in this.ground.model) {
@@ -249,7 +289,17 @@ class Player {
         //mixer.host.update( mixerUpdateDelta );
 
         this.ground.gravity.world.step(1 / 60, mixerUpdateDelta, 3)
-        this.ground.object.position.copy(this.ground.gravity.body['sphere'].position)
+        this.ground.object['sphere'].position.copy(this.ground.gravity.body['sphere'].position)
+        try {
+            this.ground.object['player'].position.copy(this.ground.gravity.body['player'].position)
+            this.ground.object['player'].quaternion.copy (this.ground.gravity.body['player'].quaternion);
+
+
+
+        } catch (error) {
+            console.log(error)
+        }
+        //console.log(this.ground.gravity.body['player'])
 
 
         for (var i in this.ground.mixer) {

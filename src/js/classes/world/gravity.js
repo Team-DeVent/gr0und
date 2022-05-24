@@ -26,6 +26,7 @@ class Gravity {
 
         this.self.gravity.world.addBody(floor_body);
     }
+
 }
 
 export { Gravity }
