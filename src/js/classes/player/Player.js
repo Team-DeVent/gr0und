@@ -35,7 +35,9 @@ class Player {
             "host":0
         };
         this.player_distance = 9; // 속도
-        this.playerLocalVelocity = new CANNON.Vec3();
+        this.playerLocalVelocity = {
+            "host": new CANNON.Vec3()
+        } 
 
 
         //this.test = this.test.bind(this);
@@ -46,7 +48,7 @@ class Player {
     init() {
 
 
-        this.ground.handle.object.addCube(1,1,1)
+        this.ground.handle.object.addCube(1,4,1)
 
         this.ground.handle.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
 
@@ -61,16 +63,20 @@ class Player {
             this.ground.model.host = gltf.scene;
 
 
-            this.ground.object['player'] = this.ground.model.host
+            this.ground.object['host'] = this.ground.model.host
 
-            this.ground.gravity.shape['player'] = new CANNON.Box(new CANNON.Vec3(1, 0, 1));
+            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(2, 0, 2));
 
-            this.ground.gravity.body['player'] = new CANNON.Body({
-              mass: 1,
+            this.ground.gravity.body['host'] = new CANNON.Body({
+              mass: 5,
               position: new CANNON.Vec3(0, 2, 0),
-              shape: this.ground.gravity.shape['player'],
+              shape: this.ground.gravity.shape['host'],
+              linearDamping: 0
+
             });
-            this.ground.gravity.world.addBody(this.ground.gravity.body['player']);
+            this.ground.gravity.body['host'].collisionResponse = true;
+
+            this.ground.gravity.world.addBody(this.ground.gravity.body['host']);
 
 
             this.ground.scene.add( this.ground.model.host );
@@ -135,6 +141,24 @@ class Player {
           this.onWindowResize()
         });
 
+        setTimeout(() => {
+            console.log(this.ground.gravity.body)
+
+            this.ground.gravity.body['host'].addEventListener("collide", function(event){
+              var relativeVelocity = event.contact.getImpactVelocityAlongNormal();
+              console.log(relativeVelocity)
+            
+              if(Math.abs(relativeVelocity) > 10){
+                  stop('host')
+              } else {
+                stop('host')
+              }
+            });
+        }, 500);
+
+
+        
+
         
     }
 
@@ -144,6 +168,23 @@ class Player {
         this.ground.loader.load( '/model/Xbot.glb',  ( gltf ) => {
             
             this.ground.model[player] = gltf.scene;
+            this.ground.object[player] = this.ground.model[player]
+
+
+            this.ground.gravity.shape[player] = new CANNON.Box(new CANNON.Vec3(2, 0, 2));
+
+            this.ground.gravity.body[player] = new CANNON.Body({
+              mass: 5,
+              position: new CANNON.Vec3(0, 2, 0),
+              shape: this.ground.gravity.shape[player],
+              linearDamping: 0
+
+            });
+            this.ground.gravity.body[player].collisionResponse = true;
+
+            this.ground.gravity.world.addBody(this.ground.gravity.body[player]);
+            this.playerLocalVelocity[player] = new CANNON.Vec3()
+
             this.playerMove[player] = [0,0,0]
             this.ground.scene.add( this.ground.model[player] );
       
@@ -160,7 +201,7 @@ class Player {
             this.ground.player_animations[player] = animations
         
             this.ground.mixer[player] = new THREE.AnimationMixer( this.ground.model[player] );
-            this.addBaseActions(player)
+            this.ground.handle.player.action.addBaseActions(player)
           
             this.setPosition(player, player_position)
 
@@ -169,20 +210,20 @@ class Player {
                 let clip = animations[ i ];
                 const name = clip.name;
         
-                if ( this.baseActions[player][ name ] ) {
-                const action = this.ground.mixer[player].clipAction( clip );
-                this.activateAction( action, player );
-                this.baseActions[player][ name ].action = action;
+                if ( this.ground.player.baseActions[player][ name ] ) {
+                    const action = this.ground.mixer[player].clipAction( clip );
+                    this.ground.handle.player.action.activate( action, player );
+                    this.ground.player.baseActions[player][ name ].action = action;
         
                 } else if ( this.additiveActions[ name ] ) {
-                THREE.AnimationUtils.makeClipAdditive( clip );
+                    THREE.AnimationUtils.makeClipAdditive( clip );
         
-                if ( clip.name.endsWith( '_pose' ) ) {
-                    clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
-                }
-        
-                const action =this.ground.mixer[player].clipAction( clip );
-                this.activateAction( action, player );
+                    if ( clip.name.endsWith( '_pose' ) ) {
+                        clip = THREE.AnimationUtils.subclip( clip, clip.name, 2, 3, 30 );
+                    }
+            
+                    const action =this.ground.mixer[player].clipAction( clip );
+                    this.ground.handle.player.action.activate( action, player );
                 }
             }
         });
@@ -220,12 +261,12 @@ class Player {
 
     rotationY(player, degree) {
         this.ground.model[player].rotation.y = degree;
-        this.ground.gravity.body['player'].quaternion.setFromEuler(0, degree, 0);
+        this.ground.gravity.body[player].quaternion.setFromEuler(0, degree, 0);
 
     }
 
     getRotation(player) {
-        //console.log(this.ground.model[player].rotation)
+        console.log('getRotationgetRotation',this.ground.model[player].rotation)
         return this.ground.model[player].rotation
     }
 
@@ -256,29 +297,27 @@ class Player {
 
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
-        this.ground.model.host.translateZ( this.playerMove["host"][2]);
+        //this.ground.model.host.translateZ( this.playerMove["host"][2]);
 
-        this.playerLocalVelocity.set( 0, 0, this.playerMove["host"][2] * 2 )
-        let worldVelocity = this.ground.gravity.body['player'].quaternion.vmult( this.playerLocalVelocity );
+        
 
-        this.ground.gravity.body['player'].velocity.x = worldVelocity.x;
-        this.ground.gravity.body['player'].velocity.z = worldVelocity.z;
+
+        for (let i in this.playerMove) {
+            this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
+            let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
+    
+            this.ground.gravity.body[i].velocity.x = worldVelocity.x;
+            this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+
+        }
+
+
+        
         if (this.playerJump["host"] != 0) {
             this.ground.gravity.body['player'].velocity.y = this.playerJump["host"]
 
         }
 
-
-        //this.ground.gravity.body['player'].velocity.x += px
-        //console.log(this.ground.gravity.body['player'])
-
-        //console.log(player_moveZ["host"])
-        
-        for (var i in this.ground.model) {
-          //console.log(i, String(i), player_moveZ[String(i)])
-          this.ground.model[i].translateZ( this.playerMove[i][2]);
-      
-        }
         
         //this.ground.microsky.exposure += 0.0004
         //this.ground.renderer.toneMappingExposure = this.ground.microsky.exposure;
@@ -289,16 +328,14 @@ class Player {
         //mixer.host.update( mixerUpdateDelta );
 
         this.ground.gravity.world.step(1 / 60, mixerUpdateDelta, 3)
-        this.ground.object['sphere'].position.copy(this.ground.gravity.body['sphere'].position)
-        try {
-            this.ground.object['player'].position.copy(this.ground.gravity.body['player'].position)
-            this.ground.object['player'].quaternion.copy (this.ground.gravity.body['player'].quaternion);
 
-
-
-        } catch (error) {
-            console.log(error)
+        for (let i in this.ground.object) {
+            this.ground.object[i].position.copy(this.ground.gravity.body[i].position)
+            this.ground.object[i].quaternion.copy (this.ground.gravity.body[i].quaternion);        
         }
+
+
+
         //console.log(this.ground.gravity.body['player'])
 
 

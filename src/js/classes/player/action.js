@@ -34,7 +34,7 @@ class Action {
 
     
     addBaseActions(player) {
-        this.baseActions[player] = {
+        this.self.player.baseActions[player] = {
           idle: { weight: 1 },
           walk: { weight: 0 },
           run: { weight: 0 }

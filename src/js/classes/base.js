@@ -103,6 +103,8 @@ class Base {
 
         this.handle.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
 
+        
+
 
     }
 }

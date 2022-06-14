@@ -142,6 +142,7 @@ base.handle.player.camera.zoom(90)
 
 
 
+
 function loadBackgroundSound() {
   let soundFile = 'audio/wind.mp3'
   const listener = new THREE.AudioListener();
@@ -456,6 +457,7 @@ semi.on('start end', function(evt, data) {
   if (move_lock == 0) {
     
     change_radian = last_radian+(data.angle.radian-(90*(Math.PI/180)))
+    console.log('getRotationgetRotation', change_radian)
     //console.log(last_radian, change_radian)
 
     base.handle.player.object.rotationY("host", change_radian)

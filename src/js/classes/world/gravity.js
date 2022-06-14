@@ -7,15 +7,26 @@ class Gravity {
 
     set() {
         this.self.gravity.world.gravity.set(0, -9.82, 0);
+        this.self.gravity.world.broadphase = new CANNON.NaiveBroadphase();
 
-        this.self.gravity.shape['sphere'] = new CANNON.Sphere(0.5);
+        this.self.gravity.world.solver.iterations = 5;
+        console.log( this.self.gravity.world)
+
+
+        this.self.gravity.shape['sphere'] = new CANNON.Box(new CANNON.Vec3(1,0.5,1));
 
         this.self.gravity.body['sphere'] = new CANNON.Body({
           mass: 1,
-          position: new CANNON.Vec3(0, 3, 0),
+          position: new CANNON.Vec3(0, 0, 0),
           shape: this.self.gravity.shape['sphere'],
+          linearDamping: 0
+
         });
+
+        this.self.gravity.body['sphere'].collisionResponse = true;
         this.self.gravity.world.addBody(this.self.gravity.body['sphere']);
+
+        console.log(this.self.gravity.body['sphere'])
 
 
         let floor_shape = new CANNON.Plane();
