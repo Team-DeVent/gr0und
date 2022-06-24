@@ -13,10 +13,10 @@ class Gravity {
         console.log( this.self.gravity.world)
 
 
-        this.self.gravity.shape['sphere'] = new CANNON.Box(new CANNON.Vec3(1,0.5,1));
+        this.self.gravity.shape['sphere'] = new CANNON.Box(new CANNON.Vec3(0.5*10,0.5,0.5));
 
         this.self.gravity.body['sphere'] = new CANNON.Body({
-          mass: 1,
+          mass: -1,
           position: new CANNON.Vec3(0, 0, 0),
           shape: this.self.gravity.shape['sphere'],
           linearDamping: 0

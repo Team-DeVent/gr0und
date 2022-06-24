@@ -28,6 +28,8 @@ let now_user_id = {
 
 document.addEventListener("keydown", keyPressed, false);
 
+ 
+
 let last_touch = 0
 document.addEventListener('touchend', function (event) {
   let now_date = new Date();
@@ -70,6 +72,14 @@ camera_zoom_out.addEventListener("click", () => {
 
     document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
   }
+});
+
+jump_button.addEventListener("click", () => {
+  base.handle.player.object.jump("host", 5)
+  setTimeout(() => {
+    base.handle.player.object.jump("host", 0)
+
+  }, 100)
 });
 
 
@@ -161,11 +171,6 @@ function loadBackgroundSound() {
     // console.log(per);
   });
 }
-
-
-
-
-
 
 
 

@@ -46,9 +46,9 @@ class Player {
     }
 
     init() {
+        this.ground.handle.object.addCube(10,1,1)
 
 
-        this.ground.handle.object.addCube(1,4,1)
 
         this.ground.handle.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
 
@@ -65,13 +65,13 @@ class Player {
 
             this.ground.object['host'] = this.ground.model.host
 
-            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(2, 0, 2));
+            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(1, 0.00000000001, 1));
 
             this.ground.gravity.body['host'] = new CANNON.Body({
               mass: 5,
               position: new CANNON.Vec3(0, 2, 0),
               shape: this.ground.gravity.shape['host'],
-              linearDamping: 0
+              angluarDamping: 0.5
 
             });
             this.ground.gravity.body['host'].collisionResponse = true;
@@ -141,20 +141,6 @@ class Player {
           this.onWindowResize()
         });
 
-        setTimeout(() => {
-            console.log(this.ground.gravity.body)
-
-            this.ground.gravity.body['host'].addEventListener("collide", function(event){
-              var relativeVelocity = event.contact.getImpactVelocityAlongNormal();
-              console.log(relativeVelocity)
-            
-              if(Math.abs(relativeVelocity) > 10){
-                  stop('host')
-              } else {
-                stop('host')
-              }
-            });
-        }, 500);
 
 
         
@@ -312,9 +298,10 @@ class Player {
         }
 
 
+
         
         if (this.playerJump["host"] != 0) {
-            this.ground.gravity.body['player'].velocity.y = this.playerJump["host"]
+            this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
 
         }
 

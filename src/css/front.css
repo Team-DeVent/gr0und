@@ -51,3 +51,14 @@ body.swal2-height-auto {
     overflow-x: scroll;
 
 }
+
+.btn {
+    touch-action: manipulation !important;
+
+}
+
+.btn-jump {
+    padding: 18px !important;
+    border-radius: 70px !important;
+    margin-bottom: 6px !important;
+}
