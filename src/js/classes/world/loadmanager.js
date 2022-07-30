@@ -5,9 +5,6 @@ class Loadmanager {
 
     init() {
 
-        console.log(this.self)
-
-
         this.self.loadmanager = new THREE.LoadingManager();
 
         this.self.loadmanager.onStart = function ( url, itemsLoaded, itemsTotal ) {

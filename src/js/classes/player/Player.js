@@ -50,7 +50,7 @@ class Player {
 
 
 
-        this.ground.handle.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
+        this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
 
 
         this.ground.loader = new THREE.GLTFLoader();
@@ -65,7 +65,7 @@ class Player {
 
             this.ground.object['host'] = this.ground.model.host
 
-            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(1, 0.00000000001, 1));
+            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(0.35, 0.00000000001, 0.5));
 
             this.ground.gravity.body['host'] = new CANNON.Body({
               mass: 5,
@@ -261,7 +261,6 @@ class Player {
     }
 
     setPosition(player, position) {
-        console.log(this.ground.model[player].position, position)
         this.ground.model[player].position.setX( position['x'] );
         this.ground.model[player].position.setY( position['y'] );
         this.ground.model[player].position.setZ( position['z'] );
@@ -292,6 +291,11 @@ class Player {
             this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
             let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
     
+            if (this.playerJump["host"] != 0) { // is jump
+                this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
+    
+            }
+
             this.ground.gravity.body[i].velocity.x = worldVelocity.x;
             this.ground.gravity.body[i].velocity.z = worldVelocity.z;
 
@@ -300,10 +304,7 @@ class Player {
 
 
         
-        if (this.playerJump["host"] != 0) {
-            this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
 
-        }
 
         
         //this.ground.microsky.exposure += 0.0004

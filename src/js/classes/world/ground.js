@@ -1,11 +1,8 @@
 import { Sky } from "/js/objects/Sky.js";
 
-
-
 class Ground {
     constructor (self) {
         this.self = self
-
     }
 
     floor() {

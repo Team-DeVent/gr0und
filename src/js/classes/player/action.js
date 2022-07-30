@@ -5,12 +5,10 @@ class Action {
 
 
     start(uid) {
-        console.log(this)
         const settings = this.self.player.baseActions[uid][ 'walk' ];
         const currentSettings = this.self.player.baseActions[uid][ 'idle' ];
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
-        console.log("> >>", currentAction, action)
         this.prepareCrossFade( currentAction, action, 0.25, uid);
     }
     
@@ -25,7 +23,6 @@ class Action {
 
     
     activate(action, uid) {
-        console.log(this.self.handle.player.action)
         const clip = action.getClip();
         const settings = this.self.player.baseActions[uid][ clip.name ] || this.self.player.additiveActions[ clip.name ];
         this.self.handle.player.object.setWeight( action, settings.weight );

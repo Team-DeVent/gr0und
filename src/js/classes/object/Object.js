@@ -12,11 +12,9 @@ class Object {
         const cube1 = new THREE.Mesh( geometry1, material1 );
         this.self.scene.add( cube1 );
         this.self.object['sphere'] = cube1
-        
     }
 
     addObject(url, position) {
-        console.log(this.self)
         const loader = new THREE.OBJLoader(this.self.loadmanager);
 
         loader.load( url, ( object ) => {

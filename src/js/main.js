@@ -145,8 +145,6 @@ let base = new Base()
 base.init()
 
 base.handle.player.object.init()
-
-console.log(base.handle.player)
 base.handle.player.camera.zoom(90)
 
 

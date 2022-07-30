@@ -1,5 +1,5 @@
-import { Object } from "/js/classes/object/Object.js"
-import { Player } from "/js/classes/player/Player.js"
+import { Object } from "/js/classes/object/object.js"
+import { Player } from "/js/classes/player/player.js"
 import { Action } from "/js/classes/player/action.js"
 
 import { Ground } from "/js/classes/world/ground.js"
@@ -101,11 +101,7 @@ class Base {
 
         this.handle.world.ground.floor()
 
-        this.handle.object.addObject('objects/lowpolytree.obj', {x:5, y:1, z:1})
-
-        
-
-
+    
     }
 }
 

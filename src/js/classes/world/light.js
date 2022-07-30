@@ -1,8 +1,6 @@
 class Light {
     constructor (self) {
         this.self = self
-
-
     }
 
     hemi() {
@@ -24,7 +22,6 @@ class Light {
         this.self.scene.add( dirLight );
         this.self.light = dirLight
     }
-
 }
 
 export { Light }
