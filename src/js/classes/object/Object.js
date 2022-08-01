@@ -7,10 +7,47 @@ class Object {
 
 
     addCube(x,y,z) {
+        // 마찰
+        this.self.gravity.material['concrete'] = new CANNON.Material('concrete')
+        this.self.gravity.material['player'] = new CANNON.Material('player')
+
+        const concretePlayerContactMaterial = new CANNON.ContactMaterial(
+            this.self.gravity.material['concrete'],
+            this.self.gravity.material['player'],
+            {
+                friction: 0.5,
+                restitution: 0
+            }
+        )
+        this.self.gravity.world.addContactMaterial(concretePlayerContactMaterial)
+
+
+        // 큐브
         const geometry1 = new THREE.BoxGeometry( x, y, z );
         const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
         const cube1 = new THREE.Mesh( geometry1, material1 );
+        cube1.receiveShadow = true;
         this.self.scene.add( cube1 );
+
+
+        // 중력
+        this.self.gravity.shape['sphere'] = new CANNON.Box(new CANNON.Vec3(0.5*10,0.5,0.5));
+        this.self.gravity.body['sphere'] = new CANNON.Body({
+          mass: -1,
+          position: new CANNON.Vec3(0, 0, 0),
+          shape: this.self.gravity.shape['sphere'],
+          linearDamping: 0,
+          material: this.self.gravity.material['concrete']
+
+        });
+        this.self.gravity.body['sphere'].quaternion.setFromAxisAngle(new CANNON.Vec3(- 1, 0, 0), Math.PI * 0.5) 
+
+        this.self.gravity.body['sphere'].collisionResponse = true;
+        this.self.gravity.world.addBody(this.self.gravity.body['sphere']);
+
+
+
+
         this.self.object['sphere'] = cube1
     }
 

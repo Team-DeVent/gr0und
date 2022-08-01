@@ -71,7 +71,8 @@ class Player {
               mass: 5,
               position: new CANNON.Vec3(0, 2, 0),
               shape: this.ground.gravity.shape['host'],
-              angluarDamping: 0.5
+              angluarDamping: 0.5,
+              material: this.ground.gravity.material['player']
 
             });
             this.ground.gravity.body['host'].collisionResponse = true;

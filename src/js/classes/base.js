@@ -46,7 +46,8 @@ class Base {
         this.gravity = {
             world: new CANNON.World(),
             shape: {},
-            body: {}
+            body: {},
+            material: {}
         }
         this.player = {
             crossFadeControls: [],

@@ -1,4 +1,4 @@
-import { Sky } from "/js/objects/Sky.js";
+import { Sky } from "/js/module/objects/Sky.js";
 
 class Ground {
     constructor (self) {
