@@ -32,7 +32,10 @@ class Player {
             "host":[0,0,0]
         };
         this.playerJump = {
-            "host":0
+            "host": {
+                velocity: 0,
+                isEnable: false
+            }
         };
         this.player_distance = 9; // 속도
         this.playerLocalVelocity = {
@@ -144,7 +147,15 @@ class Player {
 
 
 
-        
+        setTimeout(() => {
+
+            this.ground.gravity.body['host'].addEventListener("collide", (e) => {
+                var relativeVelocity = e.contact.getImpactVelocityAlongNormal();
+                this.playerJump['host'].isEnable = false
+
+            });
+        }, 800)
+
 
         
     }
@@ -243,7 +254,11 @@ class Player {
     }
 
     jump(player, value) {
-        this.playerJump[player] = value
+        this.playerJump[player].velocity = value
+        this.playerJump[player].isEnable = true
+        setTimeout(() => {
+            this.playerJump[player].velocity = 0
+        }, 100)
     }
 
     rotationY(player, degree) {
@@ -289,16 +304,34 @@ class Player {
 
 
         for (let i in this.playerMove) {
-            this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
-            let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
-    
-            if (this.playerJump["host"] != 0) { // is jump
-                this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
-    
+
+            if (this.playerJump['host'].isEnable) {
+                this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] /3 )
+                let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
+        
+                this.ground.gravity.body[i].velocity.x = worldVelocity.x;
+                this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+            } else {
+                this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
+                let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
+        
+                this.ground.gravity.body[i].velocity.x = worldVelocity.x;
+                this.ground.gravity.body[i].velocity.z = worldVelocity.z;
             }
 
-            this.ground.gravity.body[i].velocity.x = worldVelocity.x;
-            this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+            if (this.playerJump["host"].velocity != 0) { // is jump
+                //this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
+                console.log(this.ground.gravity.body['host'])
+                const strength = 200
+                const force = new CANNON.Vec3(0, strength, 0)
+                const centerInWorldCoords = this.ground.gravity.body['host'].pointToWorldFrame(new CANNON.Vec3())
+
+                this.ground.gravity.body['host'].applyForce(force, centerInWorldCoords)
+            }
+
+
+
+
 
         }
 

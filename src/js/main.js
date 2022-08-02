@@ -76,10 +76,7 @@ camera_zoom_out.addEventListener("click", () => {
 
 jump_button.addEventListener("click", () => {
   base.handle.player.object.jump("host", 5)
-  setTimeout(() => {
-    base.handle.player.object.jump("host", 0)
 
-  }, 100)
 });
 
 
@@ -128,10 +125,7 @@ function keyPressed(e) {
 
   if (e.keyCode == 32) {
     base.handle.player.object.jump("host", 5)
-    setTimeout(() => {
-      base.handle.player.object.jump("host", 0)
 
-    }, 100)
     
 
   }
