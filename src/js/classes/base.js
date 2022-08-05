@@ -34,6 +34,10 @@ class Base {
             object: new Object(this)
         }
 
+        this.page = {
+            loadStatus: false
+        }
+
         this.scene;
         this.camera;
         this.stats;

@@ -68,6 +68,27 @@ class Object {
             console.log( 'An error happened' , error);
         });
     }
+
+    addGlb(url, position) {
+
+        let loader = new THREE.GLTFLoader(this.self.loadmanager);
+
+        loader.load( url, ( gltf ) => {
+            gltf.scene.position.setX( position.x );
+            gltf.scene.position.setY( position.y );
+            gltf.scene.position.setZ( position.z );
+
+            this.self.scene.add( gltf.scene );
+
+        },
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log( 'An error happened' , error);
+        });
+
+    }
 }
 
 export { Object }

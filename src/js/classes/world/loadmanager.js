@@ -4,15 +4,18 @@ class Loadmanager {
     }
 
     init() {
+        let body = document.querySelector("#loading")
 
         this.self.loadmanager = new THREE.LoadingManager();
+
+        //console.log( 'Loading complete!');
+
 
         this.self.loadmanager.onStart = function ( url, itemsLoaded, itemsTotal ) {
             console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
         };
         
         this.self.loadmanager.onLoad = function ( ) {
-            let body = document.querySelector("#loading")
         
             console.log( 'Loading complete!');
             setTimeout(() => {

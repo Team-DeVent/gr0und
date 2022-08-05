@@ -50,19 +50,29 @@ class Player {
 
     init() {
         this.ground.handle.object.addCube(10,1,1)
-
-
-
-        this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
-
-
         this.ground.loader = new THREE.GLTFLoader();
+
+
+
+        //this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
+        //this.ground.handle.object.addObject('model/objects/trees9.obj', {x:8, y:0, z:4})
+
+
+        for (let index = 0; index < 40; index++) {
+            let rand1 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
+            let rand2 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
+            let rand3 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
+            let rand4 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
+            this.ground.handle.object.addGlb('model/untitled2.glb', {x:rand1, y:0, z:rand2})
+            this.ground.handle.object.addGlb('model/untitled3.glb', {x:rand3, y:0, z:rand4})
+
+        }
+
 
         this.ground.loader.load.bind(this)
 
 
-        this.ground.loader.load( '/model/Xbot.glb', ( gltf ) => {
-            console.log(this)
+        this.ground.loader.load( '/model/xbt_v2.glb', ( gltf ) => {
             this.ground.model.host = gltf.scene;
 
 
@@ -147,15 +157,16 @@ class Player {
 
 
 
-        setTimeout(() => {
+
+        setTimeout(() => { // 콜리전 이벤트 별도 호출 구문 필요 (settimeout 사용금지)
 
             this.ground.gravity.body['host'].addEventListener("collide", (e) => {
                 var relativeVelocity = e.contact.getImpactVelocityAlongNormal();
                 this.playerJump['host'].isEnable = false
 
-            });
-        }, 800)
-
+            }); 
+        }, 1800)
+    
 
         
     }
