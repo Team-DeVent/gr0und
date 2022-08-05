@@ -4,20 +4,21 @@ class Action {
     }
 
 
-    start(uid) {
-        const settings = this.self.player.baseActions[uid][ 'walk' ];
+    start(uid, actionName) {
+        const settings = this.self.player.baseActions[uid][ actionName ];
+        console.log(this.self.player.baseActions)
         const currentSettings = this.self.player.baseActions[uid][ 'idle' ];
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
-        this.prepareCrossFade( currentAction, action, 0.25, uid);
+        this.prepareCrossFade( currentAction, action, 0.1, uid);
     }
     
-    stop(uid) {
+    stop(uid, actionName) {
         const settings = this.self.player.baseActions[uid][ 'idle' ];
-        const currentSettings = this.self.player.baseActions[uid][ 'walk' ];
+        const currentSettings = this.self.player.baseActions[uid][ actionName ];
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
-        this.prepareCrossFade( currentAction, action, 0.25, uid);
+        this.prepareCrossFade( currentAction, action, 0.2, uid);
     }
 
 

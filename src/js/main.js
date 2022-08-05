@@ -76,6 +76,16 @@ camera_zoom_out.addEventListener("click", () => {
 
 jump_button.addEventListener("click", () => {
   base.handle.player.object.jump("host", 5)
+  //base.handle.player.action.start("host", 'jump') 
+  //base.handle.player.action.stop("host", 'jump') 
+  base.handle.player.action.start("host", "jump") 
+
+  setTimeout(() => {
+    base.handle.player.action.stop("host", "jump") 
+    console.log('a')
+
+  }, 100);
+
 
 });
 
@@ -190,7 +200,7 @@ socket.on('init', (data) => {
 socket.on('move', (data) => {
   if (now_user_id.uuid != data.uuid) {
     if (player_move_lock[data.uuid] == 0) {
-      base.handle.player.action.start(data.uuid) 
+      base.handle.player.action.start(data.uuid, 'walk') 
       base.handle.player.object.move(data.uuid)
       console.log('>>>>>>>>>>>>>', data)
       player_move_lock[data.uuid] = 1
@@ -204,7 +214,7 @@ socket.on('move', (data) => {
 
 socket.on('stop', (data) => {
   if (now_user_id.uuid != data.uuid) {
-    base.handle.player.action.stop(data.uuid) 
+    base.handle.player.action.stop(data.uuid, 'walk') 
     base.handle.player.object.stop(data.uuid)
 
     console.log('stop', data)
@@ -254,7 +264,7 @@ semi.on('end', function(evt, data) {
   if (start_count !== 0) {
     move_lock = 1 // 이동 제한
     start_count = 0
-    base.handle.player.action.stop("host") 
+    base.handle.player.action.stop("host", 'walk') 
 
     base.handle.player.object.stop("host")
     last_radian = last_radian_temp
@@ -307,7 +317,7 @@ semi.on('start end', function(evt, data) {
     if (start_count == 0) {
       console.log("> START", start_count, last_radian);
 
-      base.handle.player.action.start("host") 
+      base.handle.player.action.start("host", 'walk') 
 
     }
     start_count += 1

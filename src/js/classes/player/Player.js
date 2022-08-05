@@ -15,7 +15,7 @@ class Player {
             host: {
                 idle: { weight: 1 },
                 walk: { weight: 0 },
-                run: { weight: 0 }
+                jump: { weight: 0 }
             }
         };
         this.additiveActions = {
@@ -54,7 +54,7 @@ class Player {
 
 
 
-        //this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
+        this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
         //this.ground.handle.object.addObject('model/objects/trees9.obj', {x:8, y:0, z:4})
 
 
@@ -158,14 +158,7 @@ class Player {
 
 
 
-        setTimeout(() => { // 콜리전 이벤트 별도 호출 구문 필요 (settimeout 사용금지)
 
-            this.ground.gravity.body['host'].addEventListener("collide", (e) => {
-                var relativeVelocity = e.contact.getImpactVelocityAlongNormal();
-                this.playerJump['host'].isEnable = false
-
-            }); 
-        }, 1800)
     
 
         
@@ -239,6 +232,15 @@ class Player {
 
     }
     
+
+
+    collideEventListener(player) {
+        this.ground.gravity.body[player].addEventListener("collide", (e) => {
+            var relativeVelocity = e.contact.getImpactVelocityAlongNormal();
+            this.playerJump[player].isEnable = false
+
+        }); 
+    }
     
 
 
@@ -267,6 +269,7 @@ class Player {
     jump(player, value) {
         this.playerJump[player].velocity = value
         this.playerJump[player].isEnable = true
+
         setTimeout(() => {
             this.playerJump[player].velocity = 0
         }, 100)

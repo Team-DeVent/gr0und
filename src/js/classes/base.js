@@ -61,7 +61,7 @@ class Base {
                 host: {
                     idle: { weight: 1 },
                     walk: { weight: 0 },
-                    run: { weight: 0 }
+                    jump: { weight: 0 }
                 }
             },
             additiveActions: {

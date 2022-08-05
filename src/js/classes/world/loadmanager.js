@@ -15,7 +15,8 @@ class Loadmanager {
             console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
         };
         
-        this.self.loadmanager.onLoad = function ( ) {
+        this.self.loadmanager.onLoad = ( ) => {
+
         
             console.log( 'Loading complete!');
             setTimeout(() => {
@@ -23,7 +24,9 @@ class Loadmanager {
             }, 900);
             setTimeout(() => {
                 body.classList.add('div-hide')
-
+                setTimeout(() => {
+                    this.self.handle.player.object.collideEventListener('host')
+                }, 1000);
             }, 1100);
         };
         
