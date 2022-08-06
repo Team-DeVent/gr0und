@@ -20,9 +20,11 @@ async function startSocketServer(server) {
     let io = await loaderSocket.init(server);
     await serverSocket.socket(io)
 }
-  
-  
+    
 let server = await startExpressServer();
-let io_server = await startSocketServer(server);
+if (process.env.NODE_ENV != "nonrealtime") {
+    console.log("[ + ] enable realtime")
+    let io_server = await startSocketServer(server);
+}
 
 export { server }

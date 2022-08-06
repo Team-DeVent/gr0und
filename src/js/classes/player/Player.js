@@ -92,6 +92,8 @@ class Player {
 
             this.ground.gravity.world.addBody(this.ground.gravity.body['host']);
 
+            this.ground.handle.player.object.collideEventListener('host')
+
 
             this.ground.scene.add( this.ground.model.host );
             this.ground.light.target = this.ground.model.host
@@ -335,8 +337,8 @@ class Player {
 
             if (this.playerJump["host"].velocity != 0) { // is jump
                 //this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
-                console.log(this.ground.gravity.body['host'])
-                const strength = 200
+
+                const strength = 230
                 const force = new CANNON.Vec3(0, strength, 0)
                 const centerInWorldCoords = this.ground.gravity.body['host'].pointToWorldFrame(new CANNON.Vec3())
 

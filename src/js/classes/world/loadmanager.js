@@ -24,9 +24,9 @@ class Loadmanager {
             }, 900);
             setTimeout(() => {
                 body.classList.add('div-hide')
-                setTimeout(() => {
-                    this.self.handle.player.object.collideEventListener('host')
-                }, 1000);
+                //this.self.handle.player.object.collideEventListener('host')
+
+
             }, 1100);
         };
         

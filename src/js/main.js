@@ -4,6 +4,7 @@ import { Base } from "/js/classes/base.js";
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
 let mode = 1; // 0: dev 1: prud
+let isRealtime = false
 
 let player_clip, player_action, player_key;
 let player_distance = 0.02; // 속도
@@ -82,6 +83,8 @@ jump_button.addEventListener("click", () => {
 
   setTimeout(() => {
     base.handle.player.action.stop("host", "jump") 
+    base.handle.player.action.stop("host", "walk") 
+
     console.log('a')
 
   }, 100);
@@ -135,6 +138,13 @@ function keyPressed(e) {
 
   if (e.keyCode == 32) {
     base.handle.player.object.jump("host", 5)
+    base.handle.player.action.start("host", "jump") 
+
+    setTimeout(() => {
+      base.handle.player.action.stop("host", "jump") 
+
+
+    }, 100);
 
     
 
@@ -181,8 +191,18 @@ let player_default_position = {
   z:0
 }
 
-const socket = io();
+let socket;
 
+
+try {
+  socket = io();
+  isRealtime = true
+} catch (error) {
+  isRealtime = false
+}
+
+if (isRealtime == true) {
+  
 socket.emit('init', {
   uuid: now_user_id.uuid
 })
@@ -237,9 +257,6 @@ socket.on('remove', (uuid) => {
   base.handle.player.object.remove(uuid)
 
 })
-
-let is_first_connect = true;
-
 socket.on('connected', (data) => {
   if (is_first_connect) {
     for (let player in data) {
@@ -254,6 +271,13 @@ socket.on('connected', (data) => {
     is_first_connect = false
   }
 })
+
+
+}
+
+
+
+let is_first_connect = true;
 
 
 
@@ -279,15 +303,18 @@ semi.on('end', function(evt, data) {
   try {
 
 
-    socket.emit("stop", {
-      uuid: now_user_id.uuid,
-      position: {
-        x: end_position.x,
-        y: end_position.y,
-        z: end_position.z
+    if (isRealtime == true) {
+      socket.emit("stop", {
+        uuid: now_user_id.uuid,
+        position: {
+          x: end_position.x,
+          y: end_position.y,
+          z: end_position.z
+  
+        }
+      });
+    }
 
-      }
-    });
   } catch (error) {
     console.info('Failed to send.')
   }
@@ -309,10 +336,13 @@ semi.on('start end', function(evt, data) {
     //console.log(last_radian, change_radian)
 
     base.handle.player.object.rotationY("host", change_radian)
-    socket.emit("rotation", {
-      uuid: now_user_id.uuid,
-      rotation: data.angle.radian
-    });
+    if (isRealtime == true) {
+      socket.emit("rotation", {
+        uuid: now_user_id.uuid,
+        rotation: data.angle.radian
+      });
+    }
+
 
     if (start_count == 0) {
       console.log("> START", start_count, last_radian);
@@ -324,10 +354,12 @@ semi.on('start end', function(evt, data) {
     base.handle.player.object.move('host')
 
     try {
-      socket.emit("move", {
-        uuid: now_user_id.uuid,
-        data: 1
-      });
+      if (isRealtime == true) {
+        socket.emit("move", {
+          uuid: now_user_id.uuid,
+          data: 1
+        });
+      }
 
     } catch (error) {
       console.info('Failed to send.')
