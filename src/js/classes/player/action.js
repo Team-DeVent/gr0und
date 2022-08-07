@@ -4,21 +4,22 @@ class Action {
     }
 
 
-    start(uid, actionName) {
-        const settings = this.self.player.baseActions[uid][ actionName ];
-        console.log(this.self.player.baseActions)
-        const currentSettings = this.self.player.baseActions[uid][ 'idle' ];
+    start(uid, startActionName, endActionName) {
+        const settings = this.self.player.baseActions[uid][ startActionName ];
+        const currentSettings = this.self.player.baseActions[uid][ endActionName ];
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
+
         this.prepareCrossFade( currentAction, action, 0.1, uid);
     }
     
-    stop(uid, actionName) {
-        const settings = this.self.player.baseActions[uid][ 'idle' ];
-        const currentSettings = this.self.player.baseActions[uid][ actionName ];
+    stop(uid, startActionName, endActionName) {
+        const settings = this.self.player.baseActions[uid][ endActionName ];
+        const currentSettings = this.self.player.baseActions[uid][ startActionName ];
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
-        this.prepareCrossFade( currentAction, action, 0.2, uid);
+
+        this.prepareCrossFade( currentAction, action, 0.1, uid);
     }
 
 
@@ -39,11 +40,13 @@ class Action {
         }
     }
 
-    prepareCrossFade( startAction, endAction, duration, player ) {
-
+    prepareCrossFade( startAction, endAction, duration, player) {
         // 현재 동작이 '유휴'인 경우 크로스페이드(crossfade)를 즉시 실행합니다;
         // 그렇지 않으면 현재 작업이 현재 루프를 완료할 때까지 기다립니다.
-        if ( this.self.player.currentBaseAction === 'idle' || ! startAction || ! endAction ) {
+
+        // NOTE: 즉시실행 구문 리팩토링 필요
+        
+        if ( (this.self.player.currentBaseAction === 'idle' || this.self.player.currentBaseAction === 'walk' || ! startAction || ! endAction) ) {
             this.executeCrossFade( startAction, endAction, duration, player );
         } else {
             this.synchronizeCrossFade( startAction, endAction, duration, player );

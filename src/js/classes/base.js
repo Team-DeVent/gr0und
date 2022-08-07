@@ -56,6 +56,7 @@ class Base {
         this.player = {
             crossFadeControls: [],
             currentBaseAction: 'idle',
+            currentPlayingAction: 'idle',
             allActions: [],
             baseActions: {
                 host: {

@@ -63,8 +63,8 @@ class Player {
             let rand2 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
             let rand3 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
             let rand4 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
-            this.ground.handle.object.addGlb('model/untitled2.glb', {x:rand1, y:0, z:rand2})
-            this.ground.handle.object.addGlb('model/untitled3.glb', {x:rand3, y:0, z:rand4})
+            //this.ground.handle.object.addGlb('model/untitled2.glb', {x:rand1, y:0, z:rand2})
+            //this.ground.handle.object.addGlb('model/untitled3.glb', {x:rand3, y:0, z:rand4})
 
         }
 
@@ -72,7 +72,7 @@ class Player {
         this.ground.loader.load.bind(this)
 
 
-        this.ground.loader.load( '/model/xbt_v2.glb', ( gltf ) => {
+        this.ground.loader.load( '/model/GroundModel.glb', ( gltf ) => {
             this.ground.model.host = gltf.scene;
 
 
