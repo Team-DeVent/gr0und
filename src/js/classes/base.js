@@ -1,3 +1,6 @@
+import * as CANNON from '/js/module/cannon-es.js'
+
+
 import { Object } from "/js/classes/object/object.js"
 import { Player } from "/js/classes/player/player.js"
 import { Action } from "/js/classes/player/action.js"
@@ -51,7 +54,8 @@ class Base {
             world: new CANNON.World(),
             shape: {},
             body: {},
-            material: {}
+            material: {},
+            cannonDebugRenderer: {}
         }
         this.player = {
             crossFadeControls: [],

@@ -1,5 +1,7 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
+import * as CANNON from '/js/module/cannon-es.js'
+import CannonDebugRenderer from '/js/module/CannonDebugRenderer.js';
 
 
 class Player {
@@ -49,12 +51,13 @@ class Player {
     }
 
     init() {
-        this.ground.handle.object.addCube(10,1,1)
+        this.ground.handle.object.addCube(10,1,0.4)
         this.ground.loader = new THREE.GLTFLoader();
 
 
 
         this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
+        this.ground.handle.object.addGlb('model/sld.glb', {x:5, y:0, z:5})
         //this.ground.handle.object.addObject('model/objects/trees9.obj', {x:8, y:0, z:4})
 
 
@@ -82,7 +85,7 @@ class Player {
 
             this.ground.gravity.body['host'] = new CANNON.Body({
               mass: 5,
-              position: new CANNON.Vec3(0, 2, 0),
+              position: new CANNON.Vec3(0, 1, 0),
               shape: this.ground.gravity.shape['host'],
               angluarDamping: 0.5,
               material: this.ground.gravity.material['player']
@@ -140,6 +143,8 @@ class Player {
                     this.ground.player.allActions.push( action );
                 }
             }
+            this.ground.gravity.cannonDebugRenderer['world'] = new CannonDebugRenderer(this.ground.scene, this.ground.gravity.world)
+
 
             this.animate()
         });
@@ -314,6 +319,7 @@ class Player {
 
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
+        this.ground.gravity.cannonDebugRenderer['world'].update()
         //this.ground.model.host.translateZ( this.playerMove["host"][2]);
 
         
@@ -336,13 +342,13 @@ class Player {
             }
 
             if (this.playerJump["host"].velocity != 0) { // is jump
-                //this.ground.gravity.body['host'].velocity.y = this.playerJump["host"]
+                this.ground.gravity.body['host'].velocity.y = 3
 
-                const strength = 230
-                const force = new CANNON.Vec3(0, strength, 0)
-                const centerInWorldCoords = this.ground.gravity.body['host'].pointToWorldFrame(new CANNON.Vec3())
+                //const strength = 230
+                //const force = new CANNON.Vec3(0, strength, 0)
+                //const centerInWorldCoords = this.ground.gravity.body['host'].pointToWorldFrame(new CANNON.Vec3())
 
-                this.ground.gravity.body['host'].applyForce(force, centerInWorldCoords)
+                //this.ground.gravity.body['host'].applyForce(force, centerInWorldCoords)
             }
 
 

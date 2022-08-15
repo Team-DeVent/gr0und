@@ -28,6 +28,14 @@ body.swal2-height-auto {
     height: initial !important;
 }
 
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    overscroll-behavior-x: none;
+
+}
+
 .swal2-container.swal2-center>.swal2-popup {
     border-radius: 10px;
 }

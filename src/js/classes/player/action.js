@@ -10,7 +10,7 @@ class Action {
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
 
-        this.prepareCrossFade( currentAction, action, 0.1, uid);
+        this.prepareCrossFade( currentAction, action, 0.15, uid);
     }
     
     stop(uid, startActionName, endActionName) {
@@ -19,7 +19,7 @@ class Action {
         const currentAction = currentSettings ? currentSettings.action : null;
         const action = settings ? settings.action : null;
 
-        this.prepareCrossFade( currentAction, action, 0.1, uid);
+        this.prepareCrossFade( currentAction, action, 0.24, uid);
     }
 
 

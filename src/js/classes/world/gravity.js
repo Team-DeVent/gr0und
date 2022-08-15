@@ -1,3 +1,5 @@
+import * as CANNON from '/js/module/cannon-es.js'
+
 class Gravity {
     constructor (self) {
         this.self = self
@@ -19,6 +21,7 @@ class Gravity {
         floor_body.quaternion.setFromAxisAngle(new CANNON.Vec3(- 1, 0, 0), Math.PI * 0.5) 
 
         this.self.gravity.world.addBody(floor_body);
+        this.self.gravity.world.allowSleep = false
     }
 
 }

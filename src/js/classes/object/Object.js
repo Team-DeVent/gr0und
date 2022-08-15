@@ -1,3 +1,5 @@
+import * as CANNON from '/js/module/cannon-es.js'
+
 
 class Object {
     constructor (self) {
@@ -23,7 +25,10 @@ class Object {
 
 
         // 큐브
-        const geometry1 = new THREE.BoxGeometry( x, y, z );
+
+        const boxGalfExtents = new CANNON.Vec3(x,y,z);
+        this.self.gravity.shape['sphere'] = new CANNON.Box(boxGalfExtents);
+        const geometry1 = new THREE.BoxGeometry( boxGalfExtents.x*2, boxGalfExtents.y*2, boxGalfExtents.z*2 );
         const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
         const cube1 = new THREE.Mesh( geometry1, material1 );
         cube1.receiveShadow = true;
@@ -31,7 +36,6 @@ class Object {
 
 
         // 중력
-        this.self.gravity.shape['sphere'] = new CANNON.Box(new CANNON.Vec3(0.5*10,0.5,0.5));
         this.self.gravity.body['sphere'] = new CANNON.Body({
           mass: -1,
           position: new CANNON.Vec3(0, 0, 0),
@@ -45,11 +49,9 @@ class Object {
         this.self.gravity.body['sphere'].collisionResponse = true;
         this.self.gravity.world.addBody(this.self.gravity.body['sphere']);
 
-
-
-
         this.self.object['sphere'] = cube1
     }
+
 
     addObject(url, position) {
         const loader = new THREE.OBJLoader(this.self.loadmanager);
@@ -74,9 +76,12 @@ class Object {
         let loader = new THREE.GLTFLoader(this.self.loadmanager);
 
         loader.load( url, ( gltf ) => {
+
             gltf.scene.position.setX( position.x );
             gltf.scene.position.setY( position.y );
             gltf.scene.position.setZ( position.z );
+
+
 
             this.self.scene.add( gltf.scene );
 

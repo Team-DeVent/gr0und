@@ -86,6 +86,28 @@ jump_button.addEventListener("click", () => {
 });
 
 
+window.addEventListener("mousewheel", (e) => {
+  const direction = e.deltaY > 0 ? "down" : "up";
+
+  if (direction == 'down') {
+    player_camara.position.y -= 0.04
+    player_camara.position.z += 0.02
+
+    base.handle.player.camera.position(0,player_camara.position.y, player_camara.position.z)
+
+    document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
+  } else {
+    player_camara.position.y += 0.04
+    player_camara.position.z -= 0.02
+
+    base.handle.player.camera.position(0,player_camara.position.y, player_camara.position.z)
+
+    document.querySelector("#camera_zoom_input").value = `카메라 위치 ${player_camara.position.x},${player_camara.position.y},${player_camara.position.z}`
+  }
+
+});
+
+
 function switchConsole() {
   let body = document.querySelector("#console")
 
