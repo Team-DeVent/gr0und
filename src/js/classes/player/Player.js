@@ -1,7 +1,10 @@
 import Stats from "/js/module/stats.module.js";
 import { GUI } from "/js/module/dat.gui.module.js";
 import * as CANNON from '/js/module/cannon-es.js'
+
 import CannonDebugRenderer from '/js/module/CannonDebugRenderer.js';
+import { Capsule } from '/js/module/Capsule.js';
+import { Octree } from '/js/module/Octree.js';
 
 
 class Player {
@@ -51,23 +54,24 @@ class Player {
     }
 
     init() {
-        this.ground.handle.object.addCube(10,1,0.4)
+        this.ground.handle.object.addCube(1,1,1)
         this.ground.loader = new THREE.GLTFLoader();
 
 
 
-        this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
-        this.ground.handle.object.addGlb('model/sld.glb', {x:5, y:0, z:5})
+        //this.ground.handle.object.addObject('model/objects/lowpolytree.obj', {x:5, y:1, z:1})
         //this.ground.handle.object.addObject('model/objects/trees9.obj', {x:8, y:0, z:4})
 
+    
 
-        for (let index = 0; index < 40; index++) {
+
+        for (let index = 0; index < 30; index++) {
             let rand1 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
             let rand2 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
             let rand3 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
             let rand4 = Math.floor(Math.random() * (30 - (-30) + 1)) + (-30);
-            //this.ground.handle.object.addGlb('model/untitled2.glb', {x:rand1, y:0, z:rand2})
-            //this.ground.handle.object.addGlb('model/untitled3.glb', {x:rand3, y:0, z:rand4})
+            this.ground.handle.object.addGlb('model/untitled2.glb', {x:rand1, y:0, z:rand2})
+            this.ground.handle.object.addGlb('model/untitled3.glb', {x:rand3, y:0, z:rand4})
 
         }
 
@@ -81,7 +85,7 @@ class Player {
 
             this.ground.object['host'] = this.ground.model.host
 
-            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(0.35, 0.00000000001, 0.5));
+            this.ground.gravity.shape['host'] = new CANNON.Box(new CANNON.Vec3(0.35, 0.0000001, 0.5));
 
             this.ground.gravity.body['host'] = new CANNON.Body({
               mass: 5,
@@ -245,6 +249,8 @@ class Player {
         this.ground.gravity.body[player].addEventListener("collide", (e) => {
             var relativeVelocity = e.contact.getImpactVelocityAlongNormal();
             this.playerJump[player].isEnable = false
+            //this.ground.gravity.body['host'].position.y = this.ground.gravity.body['host'].position.y+ 4
+
 
         }); 
     }
@@ -319,12 +325,11 @@ class Player {
 
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
-        this.ground.gravity.cannonDebugRenderer['world'].update()
-        //this.ground.model.host.translateZ( this.playerMove["host"][2]);
+        //this.ground.gravity.cannonDebugRenderer['world'].update()
+        const mixerUpdateDelta = this.ground.clock.getDelta();
+
 
         
-
-
         for (let i in this.playerMove) {
 
             if (this.playerJump['host'].isEnable) {
@@ -333,6 +338,7 @@ class Player {
         
                 this.ground.gravity.body[i].velocity.x = worldVelocity.x;
                 this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+                
             } else {
                 this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
                 let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
@@ -350,13 +356,9 @@ class Player {
 
                 //this.ground.gravity.body['host'].applyForce(force, centerInWorldCoords)
             }
-
-
-
-
-
         }
 
+        
 
 
         
@@ -367,7 +369,6 @@ class Player {
         //this.ground.renderer.toneMappingExposure = this.ground.microsky.exposure;
 
       
-        const mixerUpdateDelta = this.ground.clock.getDelta();
       
         //mixer.host.update( mixerUpdateDelta );
 

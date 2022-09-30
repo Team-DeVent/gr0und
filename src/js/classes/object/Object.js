@@ -32,6 +32,7 @@ class Object {
         const material1 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
         const cube1 = new THREE.Mesh( geometry1, material1 );
         cube1.receiveShadow = true;
+        cube1.castShadow = false;
         this.self.scene.add( cube1 );
 
 

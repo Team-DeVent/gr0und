@@ -1,4 +1,5 @@
 import * as CANNON from '/js/module/cannon-es.js'
+import { Octree } from '/js/module/Octree.js';
 
 
 import { Object } from "/js/classes/object/object.js"
@@ -56,6 +57,9 @@ class Base {
             body: {},
             material: {},
             cannonDebugRenderer: {}
+        }
+        this.world = {
+            octree: new Octree()
         }
         this.player = {
             crossFadeControls: [],

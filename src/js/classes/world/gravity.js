@@ -1,14 +1,18 @@
 import * as CANNON from '/js/module/cannon-es.js'
 
+
 class Gravity {
     constructor (self) {
         this.self = self
+
+        this.gravity = {x: 0, y: -9.82, z: 0}
+
 
 
     }
 
     set() {
-        this.self.gravity.world.gravity.set(0, -9.82, 0);
+        this.self.gravity.world.gravity.set(this.gravity.x, this.gravity.y, this.gravity.z);
         this.self.gravity.world.broadphase = new CANNON.NaiveBroadphase();
         this.self.gravity.world.solver.iterations = 5;
 
@@ -22,6 +26,8 @@ class Gravity {
 
         this.self.gravity.world.addBody(floor_body);
         this.self.gravity.world.allowSleep = false
+
+
     }
 
 }
