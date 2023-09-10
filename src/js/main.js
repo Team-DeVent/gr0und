@@ -152,6 +152,7 @@ function keyPressed(e) {
   }
 
   if (e.keyCode == 32) {
+    e.preventDefault()
     base.handle.player.object.jump("host", 5)
     base.handle.player.action.start("host", "jump", now_playing_action) 
     base.handle.player.action.stop("host", "jump", now_playing_action) 

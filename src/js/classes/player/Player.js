@@ -32,6 +32,8 @@ class Player {
         this.panelSettings;
         this.numAnimations;
 
+        this.velocityRadian = 0
+
         // x,y,z
         this.playerMove = {
             "host":[0,0,0]
@@ -289,8 +291,15 @@ class Player {
     }
 
     rotationY(player, degree) {
-        this.ground.model[player].rotation.y = degree;
-        this.ground.gravity.body[player].quaternion.setFromEuler(0, degree, 0);
+        // this.ground.model[player].rotation.y = degree;
+        // this.ground.gravity.body[player].quaternion.setFromEuler(0, degree, 0);
+
+
+        console.log("E", degree)
+
+        this.velocityRadian = degree
+
+
 
     }
 
@@ -328,24 +337,40 @@ class Player {
         //this.ground.gravity.cannonDebugRenderer['world'].update()
         const mixerUpdateDelta = this.ground.clock.getDelta();
 
+        const w = 50
+        const radian = this.velocityRadian
 
+
+
+        console.log()
         
         for (let i in this.playerMove) {
 
-            if (this.playerJump['host'].isEnable) {
-                this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] /3 )
-                let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
-        
-                this.ground.gravity.body[i].velocity.x = worldVelocity.x;
-                this.ground.gravity.body[i].velocity.z = worldVelocity.z;
-                
-            } else {
-                this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
-                let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
-        
-                this.ground.gravity.body[i].velocity.x = worldVelocity.x;
-                this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+            if (this.playerMove['host'][2] != 0) {
+                this.ground.model['host'].rotation.y = radian;
+                this.ground.gravity.body['host'].quaternion.setFromEuler(0, radian, 0);
+                this.ground.gravity.body['host'].position.x += Math.sin(radian) / w
+                this.ground.gravity.body['host'].position.z += Math.cos(radian)/ w
+                this.ground.model['host'].position.x += Math.sin(radian)/ w
+                this.ground.model['host'].position.z += Math.cos(radian)/ w
             }
+
+
+
+            // if (this.playerJump['host'].isEnable) {
+            //     this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] /3 )
+            //     let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
+        
+            //     this.ground.gravity.body[i].velocity.x = worldVelocity.x;
+            //     this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+                
+            // } else {
+            //     this.playerLocalVelocity[ i ].set( 0, 0, this.playerMove[i][2] * 2 )
+            //     let worldVelocity = this.ground.gravity.body[i].quaternion.vmult( this.playerLocalVelocity[i] );
+        
+            //     this.ground.gravity.body[i].velocity.x = worldVelocity.x;
+            //     this.ground.gravity.body[i].velocity.z = worldVelocity.z;
+            // }
 
             if (this.playerJump["host"].velocity != 0) { // is jump
                 this.ground.gravity.body['host'].velocity.y = 3
